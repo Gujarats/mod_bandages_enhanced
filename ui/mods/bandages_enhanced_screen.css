@@ -150,9 +150,28 @@
 	line-height: 2.0rem;
 }
 
-.bandages-enhanced-row-bottom .status
+.bandages-enhanced-injuries
 {
 	left: 13.0rem;
+	top: -0.2rem;
+	width: 13.0rem;
+	height: 2.8rem;
+	position: absolute;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.bandages-enhanced-injuries img
+{
+	width: 2.6rem;
+	height: 2.6rem;
+	margin-right: 0.2rem;
+	display: inline-block;
+}
+
+.bandages-enhanced-row-bottom .status
+{
+	left: 26.5rem;
 	right: 0;
 	top: 0;
 	position: absolute;

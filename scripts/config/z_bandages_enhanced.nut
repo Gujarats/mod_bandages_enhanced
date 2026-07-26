@@ -285,6 +285,39 @@ addPerk({
 		};
 	}
 
+	function getRosterTreatableInjuries( _actor )
+	{
+		local injuries = [];
+
+		if (_actor == null || _actor.getSkills() == null)
+		{
+			return injuries;
+		}
+
+		local allInjuries = _actor.getSkills().query(::Const.SkillType.TemporaryInjury);
+		local settings = ::BandagesEnhanced.Mod.ModSettings;
+		local lightThreshold = settings.getSetting("LightInjuryThresholdDays").getValue();
+		local lightMax = settings.getSetting("LightInjuryMaxDays").getValue();
+		local heavyMax = settings.getSetting("HeavyInjuryMaxDays").getValue();
+
+		foreach (injury in allInjuries)
+		{
+			if (injury.isType(::Const.SkillType.PermanentInjury)) continue;
+
+			local currentMax = this.getCurrentMaxHealingDays(injury);
+			local targetMax = currentMax <= lightThreshold ? lightMax : heavyMax;
+			if (currentMax <= targetMax) continue;
+
+			injuries.push({
+				ID = injury.getID(),
+				Icon = injury.getIconColored(),
+				Name = injury.getNameOnly()
+			});
+		}
+
+		return injuries;
+	}
+
 	function getRosterTreatmentRows()
 	{
 		local rows = [];
@@ -313,6 +346,7 @@ addPerk({
 				HasPerk = this.hasBandagesEnhancedPerk(actor),
 				HasTemporaryInjury = actor.getSkills().hasSkillOfType(::Const.SkillType.TemporaryInjury),
 				HasPermanentInjury = actor.getSkills().hasSkillOfType(::Const.SkillType.PermanentInjury),
+				TreatableInjuries = this.getRosterTreatableInjuries(actor),
 				CanUse = result.CanUse,
 				Reason = result.Reason,
 				Message = result.Message

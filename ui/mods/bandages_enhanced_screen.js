@@ -147,6 +147,22 @@ BandagesEnhancedTreatmentScreen.prototype.loadFromData = function (_data)
 		rightColumn.append(bottomRow);
 
 		bottomRow.append($('<div class="hp text-font-normal font-color-description"/>').text(rowData.Hitpoints + '/' + rowData.HitpointsMax + ' HP'));
+		var injuries = $('<div class="bandages-enhanced-injuries"/>');
+		bottomRow.append(injuries);
+
+		if (rowData.TreatableInjuries && rowData.TreatableInjuries.length > 0)
+		{
+			for (var injuryIndex = 0; injuryIndex < rowData.TreatableInjuries.length; injuryIndex++)
+			{
+				var injury = rowData.TreatableInjuries[injuryIndex];
+				var injuryIcon = $('<img/>');
+				injuryIcon.attr('src', Path.GFX + injury.Icon);
+				injuryIcon.attr('title', injury.Name);
+				injuryIcon.bindTooltip({ contentType: 'status-effect', entityId: rowData.ID, statusEffectId: injury.ID });
+				injuries.append(injuryIcon);
+			}
+		}
+
 		bottomRow.append($('<div class="status text-font-normal"/>').text(rowData.Message));
 
 		if (rowData.CanUse === true)

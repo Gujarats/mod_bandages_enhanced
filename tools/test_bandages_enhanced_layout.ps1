@@ -143,6 +143,7 @@ Require-Token 'scripts/config/z_bandages_enhanced.nut' @(
     'function applyCombatBandage( _user, _target )',
     'function compressTemporaryInjuries( _actor )',
     'function getRosterBandageUseResult( _actor )',
+    'function getRosterTreatableInjuries( _actor )',
     'function getRosterTreatmentRows()',
     'function countBandagesInStash()',
     'function consumeBandageFromStash()',
@@ -166,7 +167,11 @@ Require-Token 'scripts/config/z_bandages_enhanced.nut' @(
     'ImagePath = actor.getImagePath()',
     'ImageOffsetX = actor.getImageOffsetX()',
     'ImageOffsetY = actor.getImageOffsetY()',
-    'BackgroundImagePath = actor.getBackground().getIconColored()'
+    'BackgroundImagePath = actor.getBackground().getIconColored()',
+    'TreatableInjuries = this.getRosterTreatableInjuries(actor)',
+    'ID = injury.getID()',
+    'Icon = injury.getIconColored()',
+    'Name = injury.getNameOnly()'
 )
 
 Require-Token 'scripts/config/z_bandages_enhanced.nut' @(
@@ -230,6 +235,10 @@ Require-Token 'ui/mods/bandages_enhanced_screen.js' @(
     'Path.GFX + rowData.BackgroundImagePath',
     'title-font-normal font-bold font-color-brother-name',
     'bandages-enhanced-row-bottom',
+    'bandages-enhanced-injuries',
+    'Path.GFX + injury.Icon',
+    'contentType: ''status-effect''',
+    'statusEffectId: injury.ID',
     'registerScreen("BandagesEnhancedScreen", new BandagesEnhancedTreatmentScreen());'
 )
 
@@ -241,7 +250,9 @@ Require-Token 'ui/mods/bandages_enhanced_screen.css' @(
     '.bandages-enhanced-row .row.is-top > img',
     '.bandages-enhanced-row .row.is-top .name',
     '.bandages-enhanced-row-bottom .hp',
-    '.bandages-enhanced-row-bottom .status'
+    '.bandages-enhanced-row-bottom .status',
+    '.bandages-enhanced-injuries',
+    '.bandages-enhanced-injuries img'
 )
 
 Require-Token 'README.md' @(
