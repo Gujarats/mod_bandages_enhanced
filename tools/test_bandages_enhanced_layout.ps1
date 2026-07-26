@@ -46,6 +46,7 @@ Require-File 'scripts/!mods_preload/mod_bandages_enhanced_loader.nut'
 Require-File 'scripts/!mods_preload/mod_bandages_enhanced_settings.nut'
 Require-File 'scripts/config/z_bandages_enhanced.nut'
 Require-File 'scripts/skills/perks/bandages_enhanced_perk.nut'
+Require-File 'gfx/ui/perks/bandages_enhanced.png'
 Require-File 'gfx/ui/perks/bandages_enhanced_sw.png'
 Require-File 'ui/mods/bandages_enhanced.js'
 Require-File 'ui/mods/bandages_enhanced.css'
@@ -146,7 +147,7 @@ Require-Token 'scripts/config/z_bandages_enhanced.nut' @(
     'Script = "scripts/skills/perks/bandages_enhanced_perk"',
     'Name = "Bandages Enhanced"',
     'Tooltip = "Improves bandages so they restore more hitpoints and speed up temporary injury recovery."',
-    'Icon = "ui/items/consumables/bandages_01.png"',
+    'Icon = "ui/perks/bandages_enhanced.png"',
     'IconDisabled = "ui/perks/bandages_enhanced_sw.png"',
     'Row = 2'
 )

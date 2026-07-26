@@ -26,7 +26,7 @@ Bandages Enhanced replaces vanilla bandage behavior.
 
 ## Runtime assumptions
 
-- The perk uses the existing vanilla bandage item icon `ui/items/consumables/bandages_01.png` and a project-local disabled icon `ui/perks/bandages_enhanced_sw.png`.
+- The perk uses project-local circular perk icons `ui/perks/bandages_enhanced.png` and `ui/perks/bandages_enhanced_sw.png`, derived from the vanilla bandage item icon.
 - Roster/inventory use relies on vanilla item `onUse(_actor, _item = null)` behavior used by consumable items. Verify by right-clicking or dragging bandages onto the selected character outside combat.
 - Injury recovery compression changes only temporary injuries by adjusting their healing-time fields; permanent injuries are explicitly ignored.
 - Shared helper functions live in `scripts/config/z_bandages_enhanced.nut` so they are available before the preload hook queue calls them.

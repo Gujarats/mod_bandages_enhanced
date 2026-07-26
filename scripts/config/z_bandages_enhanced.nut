@@ -22,7 +22,7 @@ addPerk({
 	Script = "scripts/skills/perks/bandages_enhanced_perk",
 	Name = "Bandages Enhanced",
 	Tooltip = "Improves bandages so they restore more hitpoints and speed up temporary injury recovery.",
-	Icon = "ui/items/consumables/bandages_01.png",
+	Icon = "ui/perks/bandages_enhanced.png",
 	IconDisabled = "ui/perks/bandages_enhanced_sw.png",
 	Row = 2 // replaced by MSU setting
 });
