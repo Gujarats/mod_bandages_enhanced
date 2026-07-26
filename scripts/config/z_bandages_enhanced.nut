@@ -105,13 +105,13 @@ addPerk({
 			: settings.getSetting("BaseHealPercentMaxHP").getValue();
 	}
 
-	function getMaxHPHealAmount( _actor )
+	function getMaxHPHealAmount( _user, _target )
 	{
-		if (_actor == null) return 0;
+		if (_target == null) return 0;
 
-		local percent = this.getCombatHealPercent(_actor);
-		local amount = ::Math.floor(_actor.getHitpointsMax() * percent / 100.0);
-		local missing = _actor.getHitpointsMax() - _actor.getHitpoints();
+		local percent = this.getCombatHealPercent(_user);
+		local amount = ::Math.floor(_target.getHitpointsMax() * percent / 100.0);
+		local missing = _target.getHitpointsMax() - _target.getHitpoints();
 		return ::Math.max(0, ::Math.min(missing, amount));
 	}
 
@@ -164,7 +164,7 @@ addPerk({
 		local didTreat = this.canTreatVanillaBandageCondition(_target);
 		this.removeVanillaBandageConditions(_target);
 
-		local healAmount = this.getMaxHPHealAmount(_target);
+		local healAmount = this.getMaxHPHealAmount(_user, _target);
 		if (healAmount > 0)
 		{
 			local actor = _target;

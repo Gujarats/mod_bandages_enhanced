@@ -75,6 +75,8 @@ Require-Token 'scripts/!mods_preload/mod_bandages_enhanced_loader.nut' @(
     '::BandagesEnhanced.Helpers.debugLog("settings initialized");',
     '::BandagesEnhanced.Helpers.debugLog("opening treatment screen from keybind");',
     'local showRosterBandagePopup = function( _message )',
+    'if ("Tactical" in getroottable() && ::Tactical.isActive())',
+    '::BandagesEnhanced.Helpers.debugLog("roster bandage popup suppressed during tactical: " + _message);',
     '::BandagesEnhanced.Helpers.debugLog("roster bandage character popup show: " + _message);',
     '::World.State.m.CharacterScreen.m.JSHandle.asyncCall("showBandagesEnhancedPopup", {',
     '::BandagesEnhanced.Helpers.debugLog("roster bandage world popup fallback show: " + _message);',
@@ -100,6 +102,9 @@ Require-Token 'scripts/!mods_preload/mod_bandages_enhanced_loader.nut' @(
     'bandage item hook create',
     'bandage item roster use',
     'bandage item roster use rejected',
+    'bandage item roster use ignored during tactical; use active skill',
+    '::BandagesEnhanced.Helpers.applyRosterBandage(_actor)',
+    'bandage item roster use applied and item consumed',
     'this.m.Description = "Apply improved bandages to yourself or an ally. Removes bleeding and fresh bandage-treatable wounds, and restores hitpoints based on maximum hitpoints.";',
     'Can be used while engaged in melee',
     'Restores [color=" + this.Const.UI.Color.PositiveValue + "]"',
@@ -109,9 +114,7 @@ Require-Token 'scripts/!mods_preload/mod_bandages_enhanced_loader.nut' @(
     'this.m.Value = ::BandagesEnhanced.Mod.ModSettings.getSetting("BandageValue").getValue();',
     'this.m.IsUsable = true;',
     'this.m.ItemType = this.Const.Items.ItemType.Usable;',
-    'Right-click or drag onto the currently selected character outside combat',
-    'bandage item roster use redirected to treatment screen',
-    'showRosterBandagePopup("Use Shift+C on the world map to open Bandages Enhanced treatment.");'
+    'With Bandages Enhanced, using key-binding default Shift+C to speed up recovery'
 )
 
 Require-Token 'scripts/!mods_preload/mod_bandages_enhanced_settings.nut' @(
@@ -137,7 +140,9 @@ Require-Token 'scripts/config/z_bandages_enhanced.nut' @(
     'function hasPerkInTree( _perkTree, _perkID )',
     'function appendBandagesEnhancedPerks( _perkTree, _row )',
     'function getCombatHealPercent( _actor )',
-    'function getMaxHPHealAmount( _actor )',
+    'function getMaxHPHealAmount( _user, _target )',
+    'local percent = this.getCombatHealPercent(_user);',
+    'local missing = _target.getHitpointsMax() - _target.getHitpoints();',
     'function canTreatVanillaBandageCondition( _target )',
     'function canUseBandageInCombatOn( _target )',
     'function applyCombatBandage( _user, _target )',
@@ -278,7 +283,11 @@ Forbid-Token '..\data_001\scripts\skills\actives\bandage_ally_skill.nut' @(
 
 Forbid-Token 'scripts/!mods_preload/mod_bandages_enhanced_loader.nut' @(
     'ID = "mod_bandages_enhanced"',
-    '::include("scripts/!mods_preload/mod_bandages_enhanced_helpers");'
+    '::include("scripts/!mods_preload/mod_bandages_enhanced_helpers");',
+    'Bandages Enhanced can only be used from the character screen outside combat.',
+    'showRosterBandagePopup("Use Shift+C on the world map to open Bandages Enhanced treatment.");',
+    'bandage item roster use redirected to treatment screen',
+    'Right-click or drag onto the currently selected character outside combat'
 )
 
 Write-Host 'Bandages Enhanced layout validation passed.'

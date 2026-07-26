@@ -85,6 +85,7 @@ if (!("BandagesEnhanced" in getroottable()))
 ::BandagesEnhanced.HookMod.queue(">mod_msu", ">mod_druid", ">mod_aura_routing", ">mod_from_the_grave", ">mod_legends", function()
 {
 	::BandagesEnhanced.Mod <- ::MSU.Class.Mod(::BandagesEnhanced.ID, ::BandagesEnhanced.Version, ::BandagesEnhanced.Name);
+	::BandagesEnhanced.Mod.Debug.disable() // TODO hard coded for now
 	::BandagesEnhanced.registerSettings();
 	::BandagesEnhanced.configureDebugLogging();
 	::BandagesEnhanced.registerKeybinds();
@@ -99,6 +100,12 @@ if (!("BandagesEnhanced" in getroottable()))
 
 	local showRosterBandagePopup = function( _message )
 	{
+		if ("Tactical" in getroottable() && ::Tactical.isActive())
+		{
+			::BandagesEnhanced.Helpers.debugLog("roster bandage popup suppressed during tactical: " + _message);
+			return;
+		}
+
 		if ("World" in getroottable()
 			&& ::World.State != null
 			&& "m" in ::World.State
@@ -302,7 +309,7 @@ if (!("BandagesEnhanced" in getroottable()))
 				id = 71,
 				type = "text",
 				icon = "ui/icons/days_wounded.png",
-				text = "With Bandages Enhanced, Right-click or drag onto the currently selected character outside combat to speed up temporary injury recovery"
+				text = "With Bandages Enhanced, using key-binding default Shift+C to speed up recovery"
 			});
 			return result;
 		}
@@ -313,14 +320,23 @@ if (!("BandagesEnhanced" in getroottable()))
 
 			if (this.Tactical.isActive())
 			{
-				::BandagesEnhanced.Helpers.debugLog("bandage item roster use rejected: tactical active");
-				showRosterBandagePopup("Bandages Enhanced can only be used from the character screen outside combat.");
+				::BandagesEnhanced.Helpers.debugLog("bandage item roster use ignored during tactical; use active skill");
 				return false;
 			}
 
-			::BandagesEnhanced.Helpers.debugLog("bandage item roster use redirected to treatment screen");
-			showRosterBandagePopup("Use Shift+C on the world map to open Bandages Enhanced treatment.");
-			return false;
+			if (!::BandagesEnhanced.Helpers.applyRosterBandage(_actor))
+			{
+				::BandagesEnhanced.Helpers.debugLog("bandage item roster use rejected by helper");
+				return false;
+			}
+
+			if (this.m.Item != null && !this.m.Item.isNull())
+			{
+				this.m.Item.removeSelf();
+			}
+
+			::BandagesEnhanced.Helpers.debugLog("bandage item roster use applied and item consumed");
+			return true;
 		}
 	});
 });
