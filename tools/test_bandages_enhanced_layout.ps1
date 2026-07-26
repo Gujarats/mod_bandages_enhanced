@@ -45,11 +45,14 @@ Require-File 'README.md'
 Require-File 'scripts/!mods_preload/mod_bandages_enhanced_loader.nut'
 Require-File 'scripts/!mods_preload/mod_bandages_enhanced_settings.nut'
 Require-File 'scripts/config/z_bandages_enhanced.nut'
+Require-File 'scripts/ui/screens/world/bandages_enhanced_screen.nut'
 Require-File 'scripts/skills/perks/bandages_enhanced_perk.nut'
 Require-File 'gfx/ui/perks/bandages_enhanced.png'
 Require-File 'gfx/ui/perks/bandages_enhanced_sw.png'
 Require-File 'ui/mods/bandages_enhanced.js'
 Require-File 'ui/mods/bandages_enhanced.css'
+Require-File 'ui/mods/bandages_enhanced_screen.js'
+Require-File 'ui/mods/bandages_enhanced_screen.css'
 
 Require-Token 'mod_config.json' @(
     '"mod_id": "mod_bandages_enhanced"',
@@ -68,12 +71,20 @@ Require-Token 'scripts/!mods_preload/mod_bandages_enhanced_loader.nut' @(
     '::BandagesEnhanced.HookMod.queue(">mod_msu", ">mod_druid", ">mod_aura_routing", ">mod_from_the_grave", ">mod_legends", function()',
     '::BandagesEnhanced.registerSettings();',
     '::BandagesEnhanced.configureDebugLogging();',
+    '::BandagesEnhanced.registerKeybinds();',
     '::BandagesEnhanced.Helpers.debugLog("settings initialized");',
+    '::BandagesEnhanced.Helpers.debugLog("opening treatment screen from keybind");',
     'local showRosterBandagePopup = function( _message )',
-    '::BandagesEnhanced.Helpers.debugLog("roster bandage popup show: " + _message);',
+    '::BandagesEnhanced.Helpers.debugLog("roster bandage character popup show: " + _message);',
+    '::World.State.m.CharacterScreen.m.JSHandle.asyncCall("showBandagesEnhancedPopup", {',
+    '::BandagesEnhanced.Helpers.debugLog("roster bandage world popup fallback show: " + _message);',
     '::World.State.showDialogPopup("Bandages Enhanced", _message, null, null, true);',
     '::Hooks.registerJS("ui/mods/bandages_enhanced.js");',
     '::Hooks.registerCSS("ui/mods/bandages_enhanced.css");',
+    '::Hooks.registerJS("ui/mods/bandages_enhanced_screen.js");',
+    '::Hooks.registerCSS("ui/mods/bandages_enhanced_screen.css");',
+    'this.m.BandagesEnhancedScreen <- this.new("scripts/ui/screens/world/bandages_enhanced_screen");',
+    'this.m.BandagesEnhancedScreen.destroy();',
     'mod.hook("scripts/skills/actives/bandage_ally_skill", function(q)',
     'mod.hook("scripts/items/accessory/bandage_item", function(q)',
     'mod.hook("scripts/ui/global/data_helper", function(q)',
@@ -89,7 +100,6 @@ Require-Token 'scripts/!mods_preload/mod_bandages_enhanced_loader.nut' @(
     'bandage item hook create',
     'bandage item roster use',
     'bandage item roster use rejected',
-    'bandage item roster use applied',
     'this.m.Description = "Apply improved bandages to yourself or an ally. Removes bleeding and fresh bandage-treatable wounds, and restores hitpoints based on maximum hitpoints.";',
     'Can be used while engaged in melee',
     'Restores [color=" + this.Const.UI.Color.PositiveValue + "]"',
@@ -100,10 +110,8 @@ Require-Token 'scripts/!mods_preload/mod_bandages_enhanced_loader.nut' @(
     'this.m.IsUsable = true;',
     'this.m.ItemType = this.Const.Items.ItemType.Usable;',
     'Right-click or drag onto the currently selected character outside combat',
-    '::BandagesEnhanced.Helpers.getRosterBandageUseResult(_actor)',
-    'showRosterBandagePopup(useResult.Message);',
-    'Temporary injury recovery has been shortened.',
-    '::BandagesEnhanced.Helpers.applyRosterBandage(_actor)'
+    'bandage item roster use redirected to treatment screen',
+    'showRosterBandagePopup("Use Shift+C on the world map to open Bandages Enhanced treatment.");'
 )
 
 Require-Token 'scripts/!mods_preload/mod_bandages_enhanced_settings.nut' @(
@@ -135,6 +143,10 @@ Require-Token 'scripts/config/z_bandages_enhanced.nut' @(
     'function applyCombatBandage( _user, _target )',
     'function compressTemporaryInjuries( _actor )',
     'function getRosterBandageUseResult( _actor )',
+    'function getRosterTreatmentRows()',
+    'function countBandagesInStash()',
+    'function consumeBandageFromStash()',
+    'function applyRosterBandageByActorID( _actorID )',
     'function canUseBandageOnRoster( _actor )',
     'function applyRosterBandage( _actor )',
     'debugLog("combat bandage rejected',
@@ -172,12 +184,42 @@ Require-Token 'scripts/skills/perks/bandages_enhanced_perk.nut' @(
     'this.m.Order = this.Const.SkillOrder.Perk;'
 )
 
+Require-Token 'scripts/ui/screens/world/bandages_enhanced_screen.nut' @(
+    'this.bandages_enhanced_screen <- {',
+    'JSHandle = null',
+    'function create()',
+    'this.m.JSHandle = this.UI.connect("BandagesEnhancedScreen", this);',
+    'function show()',
+    'this.m.JSHandle.asyncCall("show", this.queryData());',
+    'function hide( _withSlideAnimation = false )',
+    'function queryData()',
+    'function onApplyBandage( _data )',
+    '::BandagesEnhanced.Helpers.applyRosterBandageByActorID(actorID)',
+    'function onCloseButtonPressed()'
+)
+
 Require-Token 'ui/mods/bandages_enhanced.js' @(
     'var BandagesEnhanced = {};',
+    'CharacterScreen.prototype.showBandagesEnhancedPopup = function(_data)',
+    '$(''.character-screen'').createPopupDialog(title, null, null, ''bandages-enhanced-popup'');',
+    'this.mDataSource.notifyBackendPopupDialogIsVisible(true);',
+    'self.mDataSource.notifyBackendPopupDialogIsVisible(false);',
     'BandagesEnhanced.CharacterScreenPerksModule_loadPerkTreesWithBrotherData',
     '_brother.bandages_enhanced_perkTree',
     'key !== ''bandages_enhanced_perkTree'' && key.indexOf(''_perkTree'') !== -1',
     'this.onPerkTreeLoaded(null, _brother.bandages_enhanced_perkTree);'
+)
+
+Require-Token 'ui/mods/bandages_enhanced_screen.js' @(
+    'var BandagesEnhancedTreatmentScreen = function()',
+    'BandagesEnhancedTreatmentScreen.prototype.onConnection = function (_handle)',
+    'BandagesEnhancedTreatmentScreen.prototype.show = function (_data)',
+    'BandagesEnhancedTreatmentScreen.prototype.hide = function ()',
+    'BandagesEnhancedTreatmentScreen.prototype.loadFromData = function (_data)',
+    'BandagesEnhancedTreatmentScreen.prototype.notifyBackendApplyBandage = function (_actorID)',
+    'SQ.call(this.mSQHandle, ''onApplyBandage'', _actorID',
+    'SQ.call(this.mSQHandle, ''onCloseButtonPressed'')',
+    'registerScreen("BandagesEnhancedScreen", new BandagesEnhancedTreatmentScreen());'
 )
 
 Require-Token 'README.md' @(
@@ -187,6 +229,9 @@ Require-Token 'README.md' @(
     'With Bandages Enhanced, bandages restore 65% of max HP.',
     'Bandages can be used while engaged in melee.',
     'Bandages never heal permanent injuries.',
+    'press `Shift+C` on the world map',
+    'current stash bandage count',
+    'can be rebound through MSU keybind settings',
     'Runtime assumptions'
 )
 

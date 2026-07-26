@@ -1,1 +1,19 @@
-/* Bandages Enhanced currently uses vanilla perk styling. */
+.bandages-enhanced-popup .content
+{
+	min-height: 8.0rem;
+}
+
+.bandages-enhanced-popup-dialog-content-container
+{
+	width: 42.0rem;
+	min-height: 8.0rem;
+	padding: 1.4rem 1.6rem 0 1.6rem;
+}
+
+.bandages-enhanced-popup-dialog-content-container .message
+{
+	width: 100%;
+	line-height: 2.2rem;
+	text-align: center;
+	white-space: normal;
+}

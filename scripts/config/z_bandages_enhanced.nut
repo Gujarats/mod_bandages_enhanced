@@ -285,6 +285,163 @@ addPerk({
 		};
 	}
 
+	function getRosterTreatmentRows()
+	{
+		local rows = [];
+
+		if (!("World" in getroottable()) || ::World.getPlayerRoster() == null)
+		{
+			this.debugLog("roster treatment query failed: player roster unavailable");
+			return rows;
+		}
+
+		local roster = ::World.getPlayerRoster().getAll();
+
+		foreach (actor in roster)
+		{
+			local result = this.getRosterBandageUseResult(actor);
+			rows.push({
+				ID = actor.getID(),
+				Name = actor.getName(),
+				Level = actor.getLevel(),
+				Hitpoints = actor.getHitpoints(),
+				HitpointsMax = actor.getHitpointsMax(),
+				HasPerk = this.hasBandagesEnhancedPerk(actor),
+				HasTemporaryInjury = actor.getSkills().hasSkillOfType(::Const.SkillType.TemporaryInjury),
+				HasPermanentInjury = actor.getSkills().hasSkillOfType(::Const.SkillType.PermanentInjury),
+				CanUse = result.CanUse,
+				Reason = result.Reason,
+				Message = result.Message
+			});
+		}
+
+		this.debugLog("roster treatment query rows=" + rows.len());
+		return rows;
+	}
+
+	function countBandagesInStash()
+	{
+		if (!("World" in getroottable()) || ::World.Assets == null)
+		{
+			this.debugLog("count bandages failed: world assets unavailable");
+			return 0;
+		}
+
+		local stash = ::World.Assets.getStash();
+		local count = 0;
+
+		foreach (item in stash.m.Items)
+		{
+			if (item != null && item.getID() == "accessory.bandage")
+			{
+				count++;
+			}
+		}
+
+		this.debugLog("count bandages in stash=" + count);
+		return count;
+	}
+
+	function consumeBandageFromStash()
+	{
+		if (!("World" in getroottable()) || ::World.Assets == null)
+		{
+			this.debugLog("consume bandage failed: world assets unavailable");
+			return false;
+		}
+
+		local stash = ::World.Assets.getStash();
+
+		for (local i = 0; i < stash.m.Items.len(); i++)
+		{
+			local item = stash.m.Items[i];
+			if (item != null && item.getID() == "accessory.bandage")
+			{
+				stash.removeByIndex(i);
+				this.debugLog("consumed roster bandage from stash index=" + i);
+				return true;
+			}
+		}
+
+		this.debugLog("consume bandage failed: no bandage in stash");
+		return false;
+	}
+
+	function applyRosterBandageByActorID( _actorID )
+	{
+		local response = {
+			Success = false,
+			Reason = "unknown",
+			Message = "Bandages Enhanced could not apply treatment."
+		};
+
+		if (!("World" in getroottable()) || ::World.getPlayerRoster() == null)
+		{
+			response.Reason = "roster_unavailable";
+			response.Message = "The company roster is unavailable.";
+			this.debugLog("screen apply failed: roster unavailable actorID=" + _actorID);
+			return response;
+		}
+
+		local actor = null;
+		foreach (bro in ::World.getPlayerRoster().getAll())
+		{
+			if (bro.getID() == _actorID)
+			{
+				actor = bro;
+				break;
+			}
+		}
+
+		if (actor == null)
+		{
+			response.Reason = "actor_not_found";
+			response.Message = "The selected character could not be found.";
+			this.debugLog("screen apply failed: actor not found actorID=" + _actorID);
+			return response;
+		}
+
+		local useResult = this.getRosterBandageUseResult(actor);
+		if (!useResult.CanUse)
+		{
+			response.Reason = useResult.Reason;
+			response.Message = useResult.Message;
+			this.debugLog("screen apply rejected actor=" + actor.getName() + " reason=" + useResult.Reason);
+			return response;
+		}
+
+		if (this.countBandagesInStash() <= 0)
+		{
+			response.Reason = "no_bandage";
+			response.Message = "No bandages are available in the stash.";
+			this.debugLog("screen apply rejected actor=" + actor.getName() + " reason=no_bandage");
+			return response;
+		}
+
+		local applied = this.applyRosterBandage(actor);
+		if (!applied)
+		{
+			response.Reason = "not_shortened";
+			response.Message = "Bandages could not shorten " + actor.getName() + "'s temporary injury recovery any further.";
+			this.debugLog("screen apply failed after helper actor=" + actor.getName());
+			return response;
+		}
+
+		if (!this.consumeBandageFromStash())
+		{
+			response.Reason = "consume_failed";
+			response.Message = "Treatment was applied, but no bandage could be consumed. Check the debug log.";
+			this.debugLog("screen apply consume failed after treatment actor=" + actor.getName());
+			return response;
+		}
+
+		response.Success = true;
+		response.Reason = "ok";
+		response.Message = "Bandages applied to " + actor.getName() + ". Temporary injury recovery has been shortened.";
+		this.debugLog("screen apply success actor=" + actor.getName());
+		return response;
+	}
+
 	function canUseBandageOnRoster( _actor )
 	{
 		return this.getRosterBandageUseResult(_actor).CanUse;
