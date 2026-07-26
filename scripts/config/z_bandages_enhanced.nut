@@ -226,21 +226,74 @@ addPerk({
 		return changed;
 	}
 
-	function canUseBandageOnRoster( _actor )
+	function getRosterBandageUseResult( _actor )
 	{
-		if (_actor == null || !this.hasBandagesEnhancedPerk(_actor)) return false;
-		if (_actor.getSkills().hasSkillOfType(::Const.SkillType.PermanentInjury)
-			&& !_actor.getSkills().hasSkillOfType(::Const.SkillType.TemporaryInjury))
+		if (_actor == null)
 		{
-			return false;
+			this.debugLog("roster bandage eligibility: actor=<null> result=false reason=null_actor");
+			return {
+				CanUse = false,
+				Reason = "null_actor",
+				Message = "No character is selected."
+			};
 		}
 
-		return _actor.getSkills().hasSkillOfType(::Const.SkillType.TemporaryInjury);
+		local hasPerk = this.hasBandagesEnhancedPerk(_actor);
+		local hasTemporaryInjury = _actor.getSkills().hasSkillOfType(::Const.SkillType.TemporaryInjury);
+		local hasPermanentInjury = _actor.getSkills().hasSkillOfType(::Const.SkillType.PermanentInjury);
+
+		this.debugLog("roster bandage eligibility: actor=" + _actor.getName()
+			+ " hasPerk=" + hasPerk
+			+ " hasTemporaryInjury=" + hasTemporaryInjury
+			+ " hasPermanentInjury=" + hasPermanentInjury);
+
+		if (!hasPerk)
+		{
+			this.debugLog("roster bandage eligibility result=false actor=" + _actor.getName() + " reason=missing_perk");
+			return {
+				CanUse = false,
+				Reason = "missing_perk",
+				Message = _actor.getName() + " does not have the Bandages Enhanced perk."
+			};
+		}
+
+		if (hasPermanentInjury && !hasTemporaryInjury)
+		{
+			this.debugLog("roster bandage eligibility result=false actor=" + _actor.getName() + " reason=permanent_injury_only");
+			return {
+				CanUse = false,
+				Reason = "permanent_injury_only",
+				Message = _actor.getName() + " only has permanent injuries. Bandages Enhanced never heals permanent injuries."
+			};
+		}
+
+		if (!hasTemporaryInjury)
+		{
+			this.debugLog("roster bandage eligibility result=false actor=" + _actor.getName() + " reason=no_temporary_injury");
+			return {
+				CanUse = false,
+				Reason = "no_temporary_injury",
+				Message = _actor.getName() + " has no temporary injury to treat."
+			};
+		}
+
+		this.debugLog("roster bandage eligibility result=true actor=" + _actor.getName());
+		return {
+			CanUse = true,
+			Reason = "ok",
+			Message = _actor.getName() + " can use Bandages Enhanced."
+		};
+	}
+
+	function canUseBandageOnRoster( _actor )
+	{
+		return this.getRosterBandageUseResult(_actor).CanUse;
 	}
 
 	function applyRosterBandage( _actor )
 	{
-		if (!this.canUseBandageOnRoster(_actor))
+		local result = this.getRosterBandageUseResult(_actor);
+		if (!result.CanUse)
 		{
 			this.debugLog("roster bandage rejected for " + (_actor == null ? "<null>" : _actor.getName()));
 			return false;

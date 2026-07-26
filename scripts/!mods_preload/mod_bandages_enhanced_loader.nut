@@ -22,6 +22,20 @@ if (!("BandagesEnhanced" in getroottable()))
 	::Hooks.registerJS("ui/mods/bandages_enhanced.js");
 	::Hooks.registerCSS("ui/mods/bandages_enhanced.css");
 
+	local showRosterBandagePopup = function( _message )
+	{
+		if ("World" in getroottable()
+			&& ::World.State != null)
+		{
+			::BandagesEnhanced.Helpers.debugLog("roster bandage popup show: " + _message);
+			::World.State.showDialogPopup("Bandages Enhanced", _message, null, null, true);
+		}
+		else
+		{
+			::BandagesEnhanced.Helpers.debugLog("roster bandage popup unavailable: " + _message);
+		}
+	}
+
 	mod.hook("scripts/ui/global/data_helper", function(q)
 	{
 		q.convertEntityToUIData = @(__original) function( _entity, _activeEntity )
@@ -181,18 +195,29 @@ if (!("BandagesEnhanced" in getroottable()))
 			if (this.Tactical.isActive())
 			{
 				::BandagesEnhanced.Helpers.debugLog("bandage item roster use rejected: tactical active");
+				showRosterBandagePopup("Bandages Enhanced can only be used from the character screen outside combat.");
 				return false;
 			}
 
-			if (!::BandagesEnhanced.Helpers.canUseBandageOnRoster(_actor))
+			local useResult = ::BandagesEnhanced.Helpers.getRosterBandageUseResult(_actor);
+			if (!useResult.CanUse)
 			{
-				::BandagesEnhanced.Helpers.debugLog("bandage item roster use rejected: actor cannot use roster bandage");
+				::BandagesEnhanced.Helpers.debugLog("bandage item roster use rejected: actor cannot use roster bandage reason=" + useResult.Reason);
 				::BandagesEnhanced.Helpers.debugLog("roster bandage rejected for " + (_actor == null ? "<null>" : _actor.getName()));
+				showRosterBandagePopup(useResult.Message);
 				return false;
 			}
 
 			local applied = ::BandagesEnhanced.Helpers.applyRosterBandage(_actor);
 			::BandagesEnhanced.Helpers.debugLog("bandage item roster use applied=" + applied);
+			if (applied)
+			{
+				showRosterBandagePopup("Bandages applied to " + _actor.getName() + ". Temporary injury recovery has been shortened.");
+			}
+			else
+			{
+				showRosterBandagePopup("Bandages could not shorten " + _actor.getName() + "'s temporary injury recovery any further.");
+			}
 			return applied;
 		}
 	});
