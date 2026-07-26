@@ -23,7 +23,7 @@ addPerk({
 	Name = "Bandages Enhanced",
 	Tooltip = "Improves bandages so they restore more hitpoints and speed up temporary injury recovery.",
 	Icon = "ui/items/consumables/bandages_01.png",
-	IconDisabled = "ui/items/consumables/bandages_01.png",
+	IconDisabled = "ui/perks/bandages_enhanced_sw.png",
 	Row = 2 // replaced by MSU setting
 });
 
@@ -51,6 +51,50 @@ addPerk({
 	function hasBandagesEnhancedPerk( _actor )
 	{
 		return _actor != null && _actor.getSkills() != null && _actor.getSkills().hasSkill("perk.bandages_enhanced");
+	}
+
+	function clonePerkTree( _perkTree )
+	{
+		local perks = [];
+		foreach (row in _perkTree)
+		{
+			perks.push(clone row);
+		}
+		return perks;
+	}
+
+	function hasPerkInTree( _perkTree, _perkID )
+	{
+		foreach (row in _perkTree)
+		{
+			foreach (perk in row)
+			{
+				if ("ID" in perk && perk.ID == _perkID) return true;
+			}
+		}
+		return false;
+	}
+
+	function appendBandagesEnhancedPerks( _perkTree, _row )
+	{
+		local perks = this.clonePerkTree(_perkTree);
+		local row = ::Math.max(1, ::Math.min(_row, 7)) - 1;
+
+		while (perks.len() <= row)
+		{
+			perks.push([]);
+		}
+
+		foreach (perk in ::Const.Perks.BandagesEnhanced)
+		{
+			if (this.hasPerkInTree(perks, perk.ID)) continue;
+
+			local p = clone perk;
+			if ("verifyPrerequisites" in p) delete p.verifyPrerequisites;
+			perks[row].push(p);
+		}
+
+		return perks;
 	}
 
 	function getCombatHealPercent( _actor )

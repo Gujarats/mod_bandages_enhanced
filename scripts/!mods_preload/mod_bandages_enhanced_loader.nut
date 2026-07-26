@@ -10,7 +10,7 @@ if (!("BandagesEnhanced" in getroottable()))
 ::BandagesEnhanced.HookMod <- ::Hooks.register(::BandagesEnhanced.ID, ::BandagesEnhanced.Version, ::BandagesEnhanced.Name);
 ::BandagesEnhanced.HookMod.require("mod_msu >= 1.9.0");
 
-::BandagesEnhanced.HookMod.queue(">mod_msu", function()
+::BandagesEnhanced.HookMod.queue(">mod_msu", ">mod_druid", ">mod_aura_routing", ">mod_from_the_grave", ">mod_legends", function()
 {
 	::BandagesEnhanced.Mod <- ::MSU.Class.Mod(::BandagesEnhanced.ID, ::BandagesEnhanced.Version, ::BandagesEnhanced.Name);
 	::BandagesEnhanced.registerSettings();
@@ -32,17 +32,26 @@ if (!("BandagesEnhanced" in getroottable()))
 			{
 				local settings = ::BandagesEnhanced.Mod.ModSettings;
 				local row = settings.getSetting("PerkLevel").getValue();
-				local perks = ::Const.Perks.Perks.map(@(r) clone r);
+				local injected = false;
 
-				foreach (perk in ::Const.Perks.BandagesEnhanced)
+				foreach (key, value in result)
 				{
-					local p = clone perk;
-					delete p.verifyPrerequisites;
-					perks[row - 1].push(p);
+					if (typeof key == "string"
+						&& key.find("_perkTree") != null
+						&& key != "bandages_enhanced_perkTree"
+						&& typeof value == "array")
+					{
+						result[key] = ::BandagesEnhanced.Helpers.appendBandagesEnhancedPerks(value, row);
+						injected = true;
+						::BandagesEnhanced.Helpers.debugLog("merged Bandages Enhanced perk into " + key + " for " + _entity.getName());
+					}
 				}
 
-				result.bandages_enhanced_perkTree <- perks;
-				::BandagesEnhanced.Helpers.debugLog("injecting Bandages Enhanced perk tree for " + _entity.getName());
+				if (!injected)
+				{
+					result.bandages_enhanced_perkTree <- ::BandagesEnhanced.Helpers.appendBandagesEnhancedPerks(::Const.Perks.Perks, row);
+					::BandagesEnhanced.Helpers.debugLog("injecting Bandages Enhanced fallback perk tree for " + _entity.getName());
+				}
 			}
 
 			return result;

@@ -46,6 +46,7 @@ Require-File 'scripts/!mods_preload/mod_bandages_enhanced_loader.nut'
 Require-File 'scripts/!mods_preload/mod_bandages_enhanced_settings.nut'
 Require-File 'scripts/config/z_bandages_enhanced.nut'
 Require-File 'scripts/skills/perks/bandages_enhanced_perk.nut'
+Require-File 'gfx/ui/perks/bandages_enhanced_sw.png'
 Require-File 'ui/mods/bandages_enhanced.js'
 Require-File 'ui/mods/bandages_enhanced.css'
 
@@ -63,6 +64,7 @@ Require-Token 'scripts/!mods_preload/mod_bandages_enhanced_loader.nut' @(
     '::BandagesEnhanced.Version <- "0.0.1";',
     '::Hooks.register(::BandagesEnhanced.ID, ::BandagesEnhanced.Version, ::BandagesEnhanced.Name)',
     '::BandagesEnhanced.HookMod.require("mod_msu >= 1.9.0");',
+    '::BandagesEnhanced.HookMod.queue(">mod_msu", ">mod_druid", ">mod_aura_routing", ">mod_from_the_grave", ">mod_legends", function()',
     '::BandagesEnhanced.registerSettings();',
     '::BandagesEnhanced.configureDebugLogging();',
     '::BandagesEnhanced.Helpers.debugLog("settings initialized");',
@@ -71,7 +73,11 @@ Require-Token 'scripts/!mods_preload/mod_bandages_enhanced_loader.nut' @(
     'mod.hook("scripts/skills/actives/bandage_ally_skill", function(q)',
     'mod.hook("scripts/items/accessory/bandage_item", function(q)',
     'mod.hook("scripts/ui/global/data_helper", function(q)',
-    'result.bandages_enhanced_perkTree <- perks;',
+    'key.find("_perkTree") != null',
+    'result[key] = ::BandagesEnhanced.Helpers.appendBandagesEnhancedPerks(value, row);',
+    'result.bandages_enhanced_perkTree <- ::BandagesEnhanced.Helpers.appendBandagesEnhancedPerks(::Const.Perks.Perks, row);',
+    'merged Bandages Enhanced perk into',
+    'injecting Bandages Enhanced fallback perk tree',
     'bandage skill hook create',
     'bandage skill isUsable',
     'bandage skill verify target',
@@ -113,6 +119,9 @@ Require-Token 'scripts/config/z_bandages_enhanced.nut' @(
     '::BandagesEnhanced.Helpers <- {',
     'function debugLog( _message )',
     'function hasBandagesEnhancedPerk( _actor )',
+    'function clonePerkTree( _perkTree )',
+    'function hasPerkInTree( _perkTree, _perkID )',
+    'function appendBandagesEnhancedPerks( _perkTree, _row )',
     'function getCombatHealPercent( _actor )',
     'function getMaxHPHealAmount( _actor )',
     'function canTreatVanillaBandageCondition( _target )',
@@ -138,7 +147,7 @@ Require-Token 'scripts/config/z_bandages_enhanced.nut' @(
     'Name = "Bandages Enhanced"',
     'Tooltip = "Improves bandages so they restore more hitpoints and speed up temporary injury recovery."',
     'Icon = "ui/items/consumables/bandages_01.png"',
-    'IconDisabled = "ui/items/consumables/bandages_01.png"',
+    'IconDisabled = "ui/perks/bandages_enhanced_sw.png"',
     'Row = 2'
 )
 
@@ -153,6 +162,7 @@ Require-Token 'ui/mods/bandages_enhanced.js' @(
     'var BandagesEnhanced = {};',
     'BandagesEnhanced.CharacterScreenPerksModule_loadPerkTreesWithBrotherData',
     '_brother.bandages_enhanced_perkTree',
+    'key !== ''bandages_enhanced_perkTree'' && key.indexOf(''_perkTree'') !== -1',
     'this.onPerkTreeLoaded(null, _brother.bandages_enhanced_perkTree);'
 )
 
