@@ -44,7 +44,6 @@ Require-File 'mod_config.json'
 Require-File 'README.md'
 Require-File 'scripts/!mods_preload/mod_bandages_enhanced_loader.nut'
 Require-File 'scripts/!mods_preload/mod_bandages_enhanced_settings.nut'
-Require-File 'scripts/!mods_preload/mod_bandages_enhanced_helpers.nut'
 Require-File 'scripts/config/z_bandages_enhanced.nut'
 Require-File 'scripts/skills/perks/bandages_enhanced_perk.nut'
 Require-File 'ui/mods/bandages_enhanced.js'
@@ -58,14 +57,13 @@ Require-Token 'mod_config.json' @(
 )
 
 Require-Token 'scripts/!mods_preload/mod_bandages_enhanced_loader.nut' @(
-    '::BandagesEnhanced <- {',
-    'ID = "mod_bandages_enhanced"',
-    'Name = "Bandages Enhanced"',
-    'Version = "0.0.1"',
+    'if (!("BandagesEnhanced" in getroottable()))',
+    '::BandagesEnhanced.ID <- "mod_bandages_enhanced";',
+    '::BandagesEnhanced.Name <- "Bandages Enhanced";',
+    '::BandagesEnhanced.Version <- "0.0.1";',
     '::Hooks.register(::BandagesEnhanced.ID, ::BandagesEnhanced.Version, ::BandagesEnhanced.Name)',
     '::BandagesEnhanced.HookMod.require("mod_msu >= 1.9.0");',
     '::BandagesEnhanced.registerSettings();',
-    '::include("scripts/!mods_preload/mod_bandages_enhanced_helpers");',
     '::BandagesEnhanced.configureDebugLogging();',
     '::BandagesEnhanced.Helpers.debugLog("settings initialized");',
     '::Hooks.registerJS("ui/mods/bandages_enhanced.js");',
@@ -97,6 +95,7 @@ Require-Token 'scripts/!mods_preload/mod_bandages_enhanced_loader.nut' @(
 )
 
 Require-Token 'scripts/!mods_preload/mod_bandages_enhanced_settings.nut' @(
+    'if (!("BandagesEnhanced" in getroottable()))',
     '::BandagesEnhanced.registerSettings <- function()',
     'general.addBooleanSetting("DebugLogging", true',
     'general.addRangeSetting("BandageValue", 25, 1, 1000, 1',
@@ -108,7 +107,8 @@ Require-Token 'scripts/!mods_preload/mod_bandages_enhanced_settings.nut' @(
     'recovery.addRangeSetting("LightInjuryThresholdDays", 3, 1, 10, 1'
 )
 
-Require-Token 'scripts/!mods_preload/mod_bandages_enhanced_helpers.nut' @(
+Require-Token 'scripts/config/z_bandages_enhanced.nut' @(
+    'if (!("BandagesEnhanced" in getroottable()))',
     '::BandagesEnhanced.configureDebugLogging <- function()',
     '::BandagesEnhanced.Helpers <- {',
     'function debugLog( _message )',
@@ -131,6 +131,7 @@ Require-Token 'scripts/!mods_preload/mod_bandages_enhanced_helpers.nut' @(
 )
 
 Require-Token 'scripts/config/z_bandages_enhanced.nut' @(
+    'if (!("BandagesEnhanced" in getroottable()))',
     '::Const.Perks.BandagesEnhanced <- [];',
     'ID = "perk.bandages_enhanced"',
     'Script = "scripts/skills/perks/bandages_enhanced_perk"',
@@ -171,6 +172,11 @@ Forbid-Token '..\data_001\scripts\items\accessory\bandage_item.nut' @(
 
 Forbid-Token '..\data_001\scripts\skills\actives\bandage_ally_skill.nut' @(
     'Bandages Enhanced'
+)
+
+Forbid-Token 'scripts/!mods_preload/mod_bandages_enhanced_loader.nut' @(
+    'ID = "mod_bandages_enhanced"',
+    '::include("scripts/!mods_preload/mod_bandages_enhanced_helpers");'
 )
 
 Write-Host 'Bandages Enhanced layout validation passed.'

@@ -1,3 +1,8 @@
+if (!("BandagesEnhanced" in getroottable()))
+{
+	::BandagesEnhanced <- {};
+}
+
 ::BandagesEnhanced.registerSettings <- function()
 {
 	local general = ::BandagesEnhanced.Mod.ModSettings.addPage("General");

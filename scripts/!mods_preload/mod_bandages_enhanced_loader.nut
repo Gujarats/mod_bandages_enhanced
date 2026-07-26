@@ -1,8 +1,11 @@
-::BandagesEnhanced <- {
-	ID = "mod_bandages_enhanced",
-	Name = "Bandages Enhanced",
-	Version = "0.0.1"
-};
+if (!("BandagesEnhanced" in getroottable()))
+{
+	::BandagesEnhanced <- {};
+}
+
+::BandagesEnhanced.ID <- "mod_bandages_enhanced";
+::BandagesEnhanced.Name <- "Bandages Enhanced";
+::BandagesEnhanced.Version <- "0.0.1";
 
 ::BandagesEnhanced.HookMod <- ::Hooks.register(::BandagesEnhanced.ID, ::BandagesEnhanced.Version, ::BandagesEnhanced.Name);
 ::BandagesEnhanced.HookMod.require("mod_msu >= 1.9.0");
@@ -11,7 +14,6 @@
 {
 	::BandagesEnhanced.Mod <- ::MSU.Class.Mod(::BandagesEnhanced.ID, ::BandagesEnhanced.Version, ::BandagesEnhanced.Name);
 	::BandagesEnhanced.registerSettings();
-	::include("scripts/!mods_preload/mod_bandages_enhanced_helpers");
 	::BandagesEnhanced.configureDebugLogging();
 	::BandagesEnhanced.Helpers.debugLog("settings initialized");
 
