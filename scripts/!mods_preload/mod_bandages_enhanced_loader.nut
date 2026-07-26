@@ -5,7 +5,7 @@ if (!("BandagesEnhanced" in getroottable()))
 
 ::BandagesEnhanced.ID <- "mod_bandages_enhanced";
 ::BandagesEnhanced.Name <- "Bandages Enhanced";
-::BandagesEnhanced.Version <- "0.0.1";
+::BandagesEnhanced.Version <- "0.0.2";
 
 ::BandagesEnhanced.HookMod <- ::Hooks.register(::BandagesEnhanced.ID, ::BandagesEnhanced.Version, ::BandagesEnhanced.Name);
 ::BandagesEnhanced.HookMod.require("mod_msu >= 1.9.0");
