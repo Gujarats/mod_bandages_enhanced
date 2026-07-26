@@ -5,6 +5,7 @@ var BandagesEnhancedTreatmentScreen = function()
 	this.mSQHandle = null;
 	this.mContainer = null;
 	this.mDialog = null;
+	this.mListContainer = null;
 	this.mRows = null;
 	this.mSelectedActorID = null;
 	this.mStatus = null;
@@ -48,8 +49,10 @@ BandagesEnhancedTreatmentScreen.prototype.register = function(_parentDiv)
 	this.mBandageCount = $('<div class="bandage-count text-font-normal font-color-label"/>');
 	header.append(this.mBandageCount);
 
-	this.mRows = $('<div class="bandages-enhanced-roster"/>');
-	this.mDialog.append(this.mRows);
+	var roster = $('<div class="bandages-enhanced-roster"/>');
+	this.mDialog.append(roster);
+	this.mListContainer = roster.createList(8, 'bandages-enhanced-list', true);
+	this.mRows = this.mListContainer.findListScrollContainer();
 
 	this.mStatus = $('<div class="bandages-enhanced-status text-font-normal font-color-description"/>');
 	this.mDialog.append(this.mStatus);
@@ -104,34 +107,69 @@ BandagesEnhancedTreatmentScreen.prototype.loadFromData = function (_data)
 	for (var i = 0; i < _data.Rows.length; i++)
 	{
 		var rowData = _data.Rows[i];
-		var row = $('<div class="bandages-enhanced-row"/>');
-		row.data('actorID', rowData.ID);
-		row.data('canUse', rowData.CanUse === true);
-		row.data('message', rowData.Message);
+		var result = $('<div class="bandages-enhanced-row l-row"/>');
+		var entry = $('<div class="ui-control list-entry"/>');
+		result.append(entry);
 
-		row.append($('<div class="name text-font-normal font-bold font-color-label"/>').text(rowData.Name));
-		row.append($('<div class="hp text-font-normal font-color-description"/>').text(rowData.Hitpoints + '/' + rowData.HitpointsMax + ' HP'));
-		row.append($('<div class="status text-font-normal"/>').text(rowData.Message));
+		entry.data('actorID', rowData.ID);
+		entry.data('canUse', rowData.CanUse === true);
+		entry.data('message', rowData.Message);
+
+		var leftColumn = $('<div class="column is-left"/>');
+		entry.append(leftColumn);
+
+		var imageOffsetX = ('ImageOffsetX' in rowData ? rowData.ImageOffsetX : 0);
+		var imageOffsetY = ('ImageOffsetY' in rowData ? rowData.ImageOffsetY : 0);
+		(function(_leftColumn, _imagePath, _imageOffsetX, _imageOffsetY)
+		{
+			_leftColumn.createImage(Path.PROCEDURAL + _imagePath, function (_image)
+			{
+				_image.centerImageWithinParent(_imageOffsetX, _imageOffsetY, 0.64);
+				_image.removeClass('opacity-none');
+			}, null, 'opacity-none');
+		})(leftColumn, rowData.ImagePath, imageOffsetX, imageOffsetY);
+
+		var rightColumn = $('<div class="column is-right"/>');
+		entry.append(rightColumn);
+
+		var topRow = $('<div class="row is-top"/>');
+		rightColumn.append(topRow);
+
+		var backgroundIcon = $('<img/>');
+		backgroundIcon.attr('src', Path.GFX + rowData.BackgroundImagePath);
+		topRow.append(backgroundIcon);
+
+		var name = $('<div class="name title-font-normal font-bold font-color-brother-name"/>');
+		name.text(rowData.Name);
+		topRow.append(name);
+
+		var bottomRow = $('<div class="row is-bottom bandages-enhanced-row-bottom"/>');
+		rightColumn.append(bottomRow);
+
+		bottomRow.append($('<div class="hp text-font-normal font-color-description"/>').text(rowData.Hitpoints + '/' + rowData.HitpointsMax + ' HP'));
+		bottomRow.append($('<div class="status text-font-normal"/>').text(rowData.Message));
 
 		if (rowData.CanUse === true)
 		{
-			row.addClass('is-eligible');
+			result.addClass('is-eligible');
+			entry.addClass('is-eligible');
 		}
 		else
 		{
-			row.addClass('is-disabled');
+			result.addClass('is-disabled');
+			entry.addClass('is-disabled');
 		}
 
-		row.on('click', function()
+		entry.on('click', function()
 		{
-			self.mRows.find('.bandages-enhanced-row').removeClass('is-selected');
+			self.mRows.find('.bandages-enhanced-row .list-entry').removeClass('is-selected');
 			$(this).addClass('is-selected');
 			self.mSelectedActorID = $(this).data('actorID');
 			self.mStatus.text($(this).data('message'));
 			self.mApplyButton.enableButton($(this).data('canUse') === true && bandageCount > 0);
 		});
 
-		this.mRows.append(row);
+		this.mRows.append(result);
 	}
 
 	this.mApplyButton.enableButton(false);

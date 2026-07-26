@@ -303,6 +303,10 @@ addPerk({
 			rows.push({
 				ID = actor.getID(),
 				Name = actor.getName(),
+				ImagePath = actor.getImagePath(),
+				ImageOffsetX = actor.getImageOffsetX(),
+				ImageOffsetY = actor.getImageOffsetY(),
+				BackgroundImagePath = actor.getBackground().getIconColored(),
 				Level = actor.getLevel(),
 				Hitpoints = actor.getHitpoints(),
 				HitpointsMax = actor.getHitpointsMax(),

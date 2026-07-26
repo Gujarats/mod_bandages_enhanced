@@ -162,7 +162,11 @@ Require-Token 'scripts/config/z_bandages_enhanced.nut' @(
     'reason=no_temporary_injury',
     '::Const.SkillType.TemporaryInjury',
     '::Const.SkillType.PermanentInjury',
-    'actor.setHitpoints(::Math.min(actor.getHitpointsMax(), actor.getHitpoints() + healAmount));'
+    'actor.setHitpoints(::Math.min(actor.getHitpointsMax(), actor.getHitpoints() + healAmount));',
+    'ImagePath = actor.getImagePath()',
+    'ImageOffsetX = actor.getImageOffsetX()',
+    'ImageOffsetY = actor.getImageOffsetY()',
+    'BackgroundImagePath = actor.getBackground().getIconColored()'
 )
 
 Require-Token 'scripts/config/z_bandages_enhanced.nut' @(
@@ -219,7 +223,25 @@ Require-Token 'ui/mods/bandages_enhanced_screen.js' @(
     'BandagesEnhancedTreatmentScreen.prototype.notifyBackendApplyBandage = function (_actorID)',
     'SQ.call(this.mSQHandle, ''onApplyBandage'', _actorID',
     'SQ.call(this.mSQHandle, ''onCloseButtonPressed'')',
+    'var result = $(''<div class="bandages-enhanced-row l-row"/>'');',
+    'var entry = $(''<div class="ui-control list-entry"/>'');',
+    'Path.PROCEDURAL + _imagePath',
+    'centerImageWithinParent(_imageOffsetX, _imageOffsetY, 0.64',
+    'Path.GFX + rowData.BackgroundImagePath',
+    'title-font-normal font-bold font-color-brother-name',
+    'bandages-enhanced-row-bottom',
     'registerScreen("BandagesEnhancedScreen", new BandagesEnhancedTreatmentScreen());'
+)
+
+Require-Token 'ui/mods/bandages_enhanced_screen.css' @(
+    '.bandages-enhanced-row.l-row',
+    '.bandages-enhanced-list',
+    '.bandages-enhanced-row .column.is-left',
+    '.bandages-enhanced-row .column.is-right',
+    '.bandages-enhanced-row .row.is-top > img',
+    '.bandages-enhanced-row .row.is-top .name',
+    '.bandages-enhanced-row-bottom .hp',
+    '.bandages-enhanced-row-bottom .status'
 )
 
 Require-Token 'README.md' @(
