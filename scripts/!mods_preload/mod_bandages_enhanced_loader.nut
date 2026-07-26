@@ -85,7 +85,6 @@ if (!("BandagesEnhanced" in getroottable()))
 ::BandagesEnhanced.HookMod.queue(">mod_msu", ">mod_druid", ">mod_aura_routing", ">mod_from_the_grave", ">mod_legends", function()
 {
 	::BandagesEnhanced.Mod <- ::MSU.Class.Mod(::BandagesEnhanced.ID, ::BandagesEnhanced.Version, ::BandagesEnhanced.Name);
-	::BandagesEnhanced.Mod.Debug.disable() // TODO hard coded for now
 	::BandagesEnhanced.registerSettings();
 	::BandagesEnhanced.configureDebugLogging();
 	::BandagesEnhanced.registerKeybinds();

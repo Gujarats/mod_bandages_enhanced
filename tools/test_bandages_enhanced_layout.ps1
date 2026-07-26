@@ -284,6 +284,7 @@ Forbid-Token '..\data_001\scripts\skills\actives\bandage_ally_skill.nut' @(
 Forbid-Token 'scripts/!mods_preload/mod_bandages_enhanced_loader.nut' @(
     'ID = "mod_bandages_enhanced"',
     '::include("scripts/!mods_preload/mod_bandages_enhanced_helpers");',
+    '::BandagesEnhanced.Mod.Debug.disable() // TODO hard coded for now',
     'Bandages Enhanced can only be used from the character screen outside combat.',
     'showRosterBandagePopup("Use Shift+C on the world map to open Bandages Enhanced treatment.");',
     'bandage item roster use redirected to treatment screen',
