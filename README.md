@@ -81,6 +81,10 @@ Permanent injuries are ignored. If a character only has permanent injuries, the 
 
 The perk is injected into compatible perk trees, including common custom perk-tree setups. The treatment screen is opened from the world map with an MSU keybind, so it avoids changing the vanilla character screen interaction directly.
 
+Necromancer characters from `mod_necro` are handled explicitly: Bandages Enhanced now injects into `necro_perkTree` when present while keeping the existing generic perk-tree merge logic unchanged.
+
+Assumption: this is a UI/data-rendering compatibility change only; existing save games should continue to load without schema or save-format changes.
+
 Right-clicking bandages outside combat applies treatment to the currently selected character when eligible. The `Shift+C` treatment screen is available when you want to choose from the full roster.
 
 ## Runtime assumptions

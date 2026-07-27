@@ -82,7 +82,7 @@ if (!("BandagesEnhanced" in getroottable()))
 	);
 }
 
-::BandagesEnhanced.HookMod.queue(">mod_msu", ">mod_druid", ">mod_aura_routing", ">mod_from_the_grave", ">mod_legends", function()
+::BandagesEnhanced.HookMod.queue(">mod_msu", ">mod_druid", ">mod_aura_routing", ">mod_from_the_grave", ">mod_legends", ">mod_necro", function()
 {
 	::BandagesEnhanced.Mod <- ::MSU.Class.Mod(::BandagesEnhanced.ID, ::BandagesEnhanced.Version, ::BandagesEnhanced.Name);
 	::BandagesEnhanced.registerSettings();
@@ -182,7 +182,14 @@ if (!("BandagesEnhanced" in getroottable()))
 					{
 						result[key] = ::BandagesEnhanced.Helpers.appendBandagesEnhancedPerks(value, row);
 						injected = true;
-						::BandagesEnhanced.Helpers.debugLog("merged Bandages Enhanced perk into " + key + " for " + _entity.getName());
+						if (key == "necro_perkTree")
+						{
+							::BandagesEnhanced.Helpers.debugLog("merged Bandages Enhanced perk into necro_perkTree for " + _entity.getName());
+						}
+						else
+						{
+							::BandagesEnhanced.Helpers.debugLog("merged Bandages Enhanced perk into " + key + " for " + _entity.getName());
+						}
 					}
 				}
 
