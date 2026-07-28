@@ -200,7 +200,12 @@ addPerk({
 		local lightThreshold = settings.getSetting("LightInjuryThresholdDays").getValue();
 		local lightMax = settings.getSetting("LightInjuryMaxDays").getValue();
 		local heavyMax = settings.getSetting("HeavyInjuryMaxDays").getValue();
+		local maxInjuries = settings.getSetting("InjuriesPerBandageUse").getValue();
 		local changed = 0;
+		if (maxInjuries < 1) maxInjuries = 1;
+		local preferHeaviestFirst = settings.getSetting("PreferHeaviestInjuryFirst").getValue();
+
+		local candidates = [];
 		local injuries = _actor.getSkills().query(::Const.SkillType.TemporaryInjury);
 
 		foreach (injury in injuries)
@@ -211,9 +216,53 @@ addPerk({
 			local targetMax = currentMax <= lightThreshold ? lightMax : heavyMax;
 			if (currentMax <= targetMax) continue;
 
+			candidates.push({
+				Injury = injury,
+				CurrentMax = currentMax
+			});
+		}
+
+		if (preferHeaviestFirst && candidates.len() > 1)
+		{
+			for (local i = 0; i < candidates.len() - 1; i++)
+			{
+				local best = i;
+				for (local j = i + 1; j < candidates.len(); j++)
+				{
+					local candidate = candidates[j];
+					local bestCandidate = candidates[best];
+					if (candidate.CurrentMax > bestCandidate.CurrentMax
+						|| (candidate.CurrentMax == bestCandidate.CurrentMax && candidate.Injury.getID() > bestCandidate.Injury.getID()))
+					{
+						best = j;
+					}
+				}
+
+				if (best != i)
+				{
+					local tmp = candidates[i];
+					candidates[i] = candidates[best];
+					candidates[best] = tmp;
+				}
+			}
+		}
+
+		local treatedIds = [];
+		foreach (candidate in candidates)
+		{
+			if (changed >= maxInjuries)
+			{
+				break;
+			}
+
+			local injury = candidate.Injury;
+			local currentMax = candidate.CurrentMax;
+			local targetMax = currentMax <= lightThreshold ? lightMax : heavyMax;
+
 			injury.m.HealingTimeMin = ::Math.min(injury.m.HealingTimeMin, targetMax);
 			injury.m.HealingTimeMax = ::Math.max(injury.m.HealingTimeMin, targetMax);
 			injury.setTreated(true);
+			treatedIds.push(injury.getID());
 			changed++;
 		}
 
@@ -223,7 +272,10 @@ addPerk({
 		}
 
 		this.debugLog("roster bandage compressed " + changed + " temporary injuries on " + _actor.getName());
-		return changed;
+		return {
+			Changed = changed,
+			TreatedInjuries = treatedIds
+		};
 	}
 
 	function getRosterBandageUseResult( _actor )
@@ -241,6 +293,8 @@ addPerk({
 		local hasPerk = this.hasBandagesEnhancedPerk(_actor);
 		local hasTemporaryInjury = _actor.getSkills().hasSkillOfType(::Const.SkillType.TemporaryInjury);
 		local hasPermanentInjury = _actor.getSkills().hasSkillOfType(::Const.SkillType.PermanentInjury);
+		local treatableInjuries = this.getRosterTreatableInjuries(_actor);
+		local treatableCount = treatableInjuries.len();
 
 		this.debugLog("roster bandage eligibility: actor=" + _actor.getName()
 			+ " hasPerk=" + hasPerk
@@ -277,11 +331,24 @@ addPerk({
 			};
 		}
 
+		if (treatableCount == 0)
+		{
+			this.debugLog("roster bandage eligibility result=false actor=" + _actor.getName() + " reason=no_treatable_injury");
+			return {
+				CanUse = false,
+				Reason = "no_treatable_injury",
+				Message = _actor.getName() + " has only fully treated temporary injuries. No further reduction is possible."
+			};
+		}
+
 		this.debugLog("roster bandage eligibility result=true actor=" + _actor.getName());
+		local label = treatableCount == 1 ? " temporary injury." : " temporary injuries.";
 		return {
 			CanUse = true,
 			Reason = "ok",
-			Message = _actor.getName() + " can use Bandages Enhanced."
+			Message = _actor.getName() + " can use Bandages Enhanced on " + treatableCount + label,
+			TreatableInjuries = treatableInjuries,
+			TreatableInjuryCount = treatableCount
 		};
 	}
 
@@ -333,6 +400,7 @@ addPerk({
 		foreach (actor in roster)
 		{
 			local result = this.getRosterBandageUseResult(actor);
+			local treatableInjuries = ("TreatableInjuries" in result) ? result.TreatableInjuries : this.getRosterTreatableInjuries(actor);
 			rows.push({
 				ID = actor.getID(),
 				Name = actor.getName(),
@@ -346,7 +414,7 @@ addPerk({
 				HasPerk = this.hasBandagesEnhancedPerk(actor),
 				HasTemporaryInjury = actor.getSkills().hasSkillOfType(::Const.SkillType.TemporaryInjury),
 				HasPermanentInjury = actor.getSkills().hasSkillOfType(::Const.SkillType.PermanentInjury),
-				TreatableInjuries = this.getRosterTreatableInjuries(actor),
+				TreatableInjuries = treatableInjuries,
 				CanUse = result.CanUse,
 				Reason = result.Reason,
 				Message = result.Message
@@ -494,6 +562,6 @@ addPerk({
 			return false;
 		}
 
-		return this.compressTemporaryInjuries(_actor) > 0;
+		return this.compressTemporaryInjuries(_actor).Changed > 0;
 	}
 };
