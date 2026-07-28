@@ -19,4 +19,6 @@ if (!("BandagesEnhanced" in getroottable()))
 	recovery.addRangeSetting("LightInjuryThresholdDays", 3, 1, 10, 1, "Light Injury Threshold Days", "Temporary injuries with current max recovery days at or below this value are compressed to Light Injury Max Days.");
 	recovery.addRangeSetting("LightInjuryMaxDays", 1, 1, 10, 1, "Light Injury Max Days", "Target max recovery days for light temporary injuries.");
 	recovery.addRangeSetting("HeavyInjuryMaxDays", 2, 1, 10, 1, "Heavy Injury Max Days", "Target max recovery days for heavier temporary injuries.");
+	recovery.addRangeSetting("InjuriesPerBandageUse", 1, 1, 5, 1, "Injuries Treated Per Use", "How many temporary injuries one bandage use should speed up.");
+	recovery.addBooleanSetting("PreferHeaviestInjuryFirst", true, "Prefer Heaviest Injuries First", "Treat heavier temporary injuries before lighter ones when multiple injuries are eligible.");
 }
