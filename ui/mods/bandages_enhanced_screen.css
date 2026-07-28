@@ -207,9 +207,19 @@
 	text-align: center;
 }
 
-.bandages-enhanced-footer .l-button
+.bandages-enhanced-footer .bandages-enhanced-footer-button
 {
+	width: 17.5rem;
+	height: 4.3rem;
 	display: inline-block;
 	margin-left: 0.6rem;
 	margin-right: 0.6rem;
+}
+
+.bandages-enhanced-footer .bandages-enhanced-footer-button .ui-control.button-1
+{
+	width: 100%;
+	height: 100%;
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
 }

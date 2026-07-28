@@ -61,7 +61,9 @@ BandagesEnhancedTreatmentScreen.prototype.register = function(_parentDiv)
 	this.mDialog.append(footer);
 
 	var self = this;
-	this.mApplyButton = footer.createTextButton('Apply Bandage', function()
+	var applyContainer = $('<div class="bandages-enhanced-footer-button"/>');
+	footer.append(applyContainer);
+	this.mApplyButton = applyContainer.createTextButton('Apply Bandage', function()
 	{
 		if (self.mSelectedActorID !== null)
 		{
@@ -69,7 +71,9 @@ BandagesEnhancedTreatmentScreen.prototype.register = function(_parentDiv)
 		}
 	}, '', 1);
 
-	footer.createTextButton('Close', function()
+	var closeContainer = $('<div class="bandages-enhanced-footer-button"/>');
+	footer.append(closeContainer);
+	closeContainer.createTextButton('Close', function()
 	{
 		self.notifyBackendClose();
 	}, '', 1);

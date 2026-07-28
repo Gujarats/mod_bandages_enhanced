@@ -19,6 +19,16 @@
 - It is **not** a button element, so it does not create or duplicate footer buttons.
 - The repeated/very long footer button issue is more consistent with button sizing/layout (`.ui-control.button-1` from `createTextButton(..., '', 1)` uses `width: 100%`) and the footer class mismatch (`.l-button` styles are defined, but those buttons do not have the `l-button` class).
 
+## UI implementation plan (pending)
+
+- File: [mod_bandages_enhanced/ui/mods/bandages_enhanced_screen.js](E:\\Battle Brother extract code\\mod_bandages_enhanced\\ui\\mods\\bandages_enhanced_screen.js)
+  - Wrap each footer button in a fixed-size layout div (e.g., `.bandages-enhanced-footer-button`) before calling `createTextButton`.
+  - Keep `createTextButton(..., '', 1)` unchanged for sprite/label behavior.
+- File: [mod_bandages_enhanced/ui/mods/bandages_enhanced_screen.css](E:\\Battle Brother extract code\\mod_bandages_enhanced\\ui\\mods\\bandages_enhanced_screen.css)
+  - Replace `.bandages-enhanced-footer .l-button` styling with `.bandages-enhanced-footer-button`.
+  - Add explicit button width/height matching sprite size (`17.5rem` x `4.3rem`).
+  - Force non-repeating background and full-size mapping for `.ui-control.button-1` inside this footer.
+
 ## Design rules before implementation
 
 - One bandage consumes one unit and changes only one injury at a time by default.
