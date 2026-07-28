@@ -77,6 +77,67 @@
 4. Verify combat bandage in `scripts/skills/actives/bandage_ally_skill` still restores by `% max HP` only and still removes bleeding/fresh bandage wounds.
 5. Verify permanent injury-only character remains blocked and no error pops.
 
+## Improvement 2 plan (UI status text readability and semantics)
+
+### Scope
+
+- File: [bandages_enhanced_screen.js](E:\\Battle Brother extract code\\mod_bandages_enhanced\\ui\\mods\\bandages_enhanced_screen.js)
+- File: [bandages_enhanced_screen.css](E:\\Battle Brother extract code\\mod_bandages_enhanced\\ui\\mods\\bandages_enhanced_screen.css)
+- File: [z_bandages_enhanced.nut](E:\\Battle Brother extract code\\mod_bandages_enhanced\\scripts\\config\\z_bandages_enhanced.nut) (backend reason/message harmonization if needed)
+
+### Problem statement
+
+- The right-side row status text is currently hard to read due to:
+  - narrow layout width and clipping (`overflow`/`white-space` constraints),
+  - mixed message semantics mapped to only two visible states (green/red).
+
+### Acceptance behavior
+
+1. Readable text must not be truncated to the first two words in normal status strings.
+2. Color meaning is explicit:
+  - green: character is currently treatable,
+  - red: unrecoverable now because perk is missing or other hard blockers,
+  - orange: all treatable wounds already shortened (no remaining treatable injuries this session).
+3. Existing states must preserve current row status messages or use equivalent semantics without losing context.
+4. No combat or roster logic changes beyond status rendering.
+
+### Proposed implementation
+
+1. Backend reason mapping
+  - In `getRosterBandageUseResult()` keep returning `Reason` values that distinguish:
+    - `missing_perk`,
+    - `no_treatable_injury`,
+    - `no_temporary_injury`,
+    - `permanent_injury_only`,
+    - `ok`.
+  - Add/adjust a helper message for `no_treatable_injury` so orange text can be targeted cleanly.
+
+2. Row class/state mapping
+  - In `loadFromData()` add/keep explicit row class mapping from `Reason`:
+    - `CanUse` true → green,
+    - red reasons (`missing_perk`, `no_temporary_injury`, `permanent_injury_only`) → red,
+    - `no_treatable_injury` → orange.
+  - Use a deterministic mapping instead of relying only on `.is-eligible/.is-disabled`.
+
+3. CSS readability updates
+  - Update `.bandages-enhanced-row-bottom .status` layout rules:
+    - increase width where needed,
+    - remove `white-space: nowrap` / keep truncation controlled with ellipsis only where necessary,
+    - keep layout stable for long lines.
+  - Add/ensure orange state class style (e.g. `.bandages-enhanced-row.is-treated { color: <orange>; }` and/or `.bandages-enhanced-row-bottom .status.is-treated`).
+
+4. Quick pass verification
+  - Check with sample status messages:
+    - green: treatable injury count text,
+    - red: missing perk/permanent-only/no temporary,
+    - orange: already at floor values.
+  - Confirm buttons and hover behavior remain unchanged from current mod fix.
+
+### Open items
+
+1. Which exact orange color should be used (`#B56A58` currently exists for red/dark states; we can reuse with different tone if available)?
+2. Confirm whether “already treated” should be a distinct row-level orange even if bandage can be used on another reason.
+
 ## Documentation
 
 1. Update `mod_bandages_enhanced/README.md` to describe one-bandage-per-injury behavior.

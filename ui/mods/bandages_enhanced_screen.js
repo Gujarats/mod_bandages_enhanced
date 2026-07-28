@@ -167,12 +167,19 @@ BandagesEnhancedTreatmentScreen.prototype.loadFromData = function (_data)
 			}
 		}
 
-		bottomRow.append($('<div class="status text-font-normal"/>').text(rowData.Message));
+		var status = $('<div class="status text-font-normal"/>').text(rowData.Message);
+		status.data('statusReason', rowData.Reason);
+		bottomRow.append(status);
 
 		if (rowData.CanUse === true)
 		{
 			result.addClass('is-eligible');
 			entry.addClass('is-eligible');
+		}
+		else if (rowData.Reason === "no_treatable_injury")
+		{
+			result.addClass('is-treated');
+			entry.addClass('is-treated');
 		}
 		else
 		{
