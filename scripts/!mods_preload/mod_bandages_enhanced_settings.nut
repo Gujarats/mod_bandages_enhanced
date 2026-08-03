@@ -9,7 +9,7 @@ if (!("BandagesEnhanced" in getroottable()))
 	local combat = ::BandagesEnhanced.Mod.ModSettings.addPage("Combat");
 	local recovery = ::BandagesEnhanced.Mod.ModSettings.addPage("Recovery");
 
-	general.addBooleanSetting("DebugLogging", false, "Debug Logging", "Write Bandages Enhanced debug lines to log.html.");
+	general.addBooleanSetting("DebugLogging", true, "Debug Logging", "Write Bandages Enhanced debug lines to log.html.");
 	general.addRangeSetting("BandageValue", 25, 1, 1000, 1, "Bandage Value", "Base value for bandages. Default matches vanilla.");
 	general.addRangeSetting("PerkLevel", 2, 1, 7, 1, "Perk Row", "Which perk row unlocks Bandages Enhanced. Requires restart.");
 
@@ -21,4 +21,5 @@ if (!("BandagesEnhanced" in getroottable()))
 	recovery.addRangeSetting("HeavyInjuryMaxDays", 2, 1, 10, 1, "Heavy Injury Max Days", "Target max recovery days for heavier temporary injuries.");
 	recovery.addRangeSetting("InjuriesPerBandageUse", 1, 1, 5, 1, "Injuries Treated Per Use", "How many temporary injuries one bandage use should speed up.");
 	recovery.addBooleanSetting("PreferHeaviestInjuryFirst", true, "Prefer Heaviest Injuries First", "Treat heavier temporary injuries before lighter ones when multiple injuries are eligible.");
+	recovery.addBooleanSetting("TreatPoVMutationSickness", false, "Treat PoV Mutation Sickness", "Allow Bandages Enhanced to shorten PoV Mutation Sickness. Disabled by default until runtime balance is confirmed.");
 }

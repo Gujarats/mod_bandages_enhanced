@@ -76,12 +76,21 @@ Permanent injuries are ignored. If a character only has permanent injuries, the 
 - Light Injury Threshold Days: default 3.
 - Light Injury Max Days: default 1.
 - Heavy Injury Max Days: default 2.
+- Treat PoV Mutation Sickness: disabled by default.
 
 ## Compatibility Notes
 
 The perk is injected into compatible perk trees, including common custom perk-tree setups. The treatment screen is opened from the world map with an MSU keybind, so it avoids changing the vanilla character screen interaction directly.
 
 Necromancer characters from `mod_necro` are handled explicitly: Bandages Enhanced now injects into `necro_perkTree` when present while keeping the existing generic perk-tree merge logic unchanged.
+
+### Legends + PoV
+
+When `mod_legends` is installed, Bandages Enhanced uses a Legends-specific perk-tree patch instead of the vanilla UI-only perk-tree injection. The perk is registered as a real Legends perk and added to background perk trees so it can be unlocked through Legends backend logic.
+
+When `mod_PoV` is also installed, Bandages Enhanced keeps the Legends path and adds PoV-aware logging. PoV Mutation Sickness is excluded from Bandages Enhanced recovery by default until tested otherwise.
+
+Bandages Enhanced initially enhances the item-provided `actives.bandage_ally` path. Legends' free `actives.legend_bandage` from Bandage Mastery is not changed until runtime testing confirms it should receive the same HP restoration.
 
 Assumption: this is a UI/data-rendering compatibility change only; existing save games should continue to load without schema or save-format changes.
 
@@ -96,6 +105,8 @@ Right-clicking bandages outside combat applies treatment to the currently select
 - Shared helper functions live in `scripts/config/z_bandages_enhanced.nut` so they are available before the preload hook queue calls them.
 - Injury icons in the treatment screen use the vanilla `status-effect` tooltip binding with the actor ID and injury ID.
 - Modal world/character-screen popups are suppressed during tactical combat because that UI state can freeze combat input.
+- In Legends, Bandages Enhanced is persisted into background custom perk trees through `background.addPerk()`. Saves that receive this perk should keep `mod_bandages_enhanced` installed.
+- PoV's Modern Hooks ID is `mod_PoV`; this is the ID used for load-order and runtime detection.
 
 ## Build
 

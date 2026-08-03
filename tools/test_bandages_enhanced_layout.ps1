@@ -45,6 +45,9 @@ Require-File 'README.md'
 Require-File 'scripts/!mods_preload/mod_bandages_enhanced_loader.nut'
 Require-File 'scripts/!mods_preload/mod_bandages_enhanced_settings.nut'
 Require-File 'scripts/config/z_bandages_enhanced.nut'
+Require-File 'scripts/mods/bandages_enhanced/vanilla_perk_tree_patch.nut'
+Require-File 'scripts/mods/bandages_enhanced/compatibility/legends_perk_tree_patch.nut'
+Require-File 'scripts/mods/bandages_enhanced/compatibility/pov_witcher_patch.nut'
 Require-File 'scripts/ui/screens/world/bandages_enhanced_screen.nut'
 Require-File 'scripts/skills/perks/bandages_enhanced_perk.nut'
 Require-File 'gfx/ui/perks/bandages_enhanced.png'
@@ -65,10 +68,13 @@ Require-Token 'scripts/!mods_preload/mod_bandages_enhanced_loader.nut' @(
     'if (!("BandagesEnhanced" in getroottable()))',
     '::BandagesEnhanced.ID <- "mod_bandages_enhanced";',
     '::BandagesEnhanced.Name <- "Bandages Enhanced";',
-    '::BandagesEnhanced.Version <- "0.0.2";',
+    '::BandagesEnhanced.Version <- "0.0.5";',
     '::Hooks.register(::BandagesEnhanced.ID, ::BandagesEnhanced.Version, ::BandagesEnhanced.Name)',
     '::BandagesEnhanced.HookMod.require("mod_msu >= 1.9.0");',
-    '::BandagesEnhanced.HookMod.queue(">mod_msu", ">mod_druid", ">mod_aura_routing", ">mod_from_the_grave", ">mod_legends", ">mod_necro", function()',
+    '::include("scripts/mods/bandages_enhanced/vanilla_perk_tree_patch");',
+    '::include("scripts/mods/bandages_enhanced/compatibility/legends_perk_tree_patch");',
+    '::include("scripts/mods/bandages_enhanced/compatibility/pov_witcher_patch");',
+    '::BandagesEnhanced.HookMod.queue(">mod_msu", ">mod_druid", ">mod_aura_routing", ">mod_from_the_grave", ">mod_legends", ">mod_PoV", ">mod_necro", function()',
     '::BandagesEnhanced.registerSettings();',
     '::BandagesEnhanced.configureDebugLogging();',
     '::BandagesEnhanced.registerKeybinds();',
@@ -89,14 +95,12 @@ Require-Token 'scripts/!mods_preload/mod_bandages_enhanced_loader.nut' @(
     'this.m.BandagesEnhancedScreen.destroy();',
     'mod.hook("scripts/skills/actives/bandage_ally_skill", function(q)',
     'mod.hook("scripts/items/accessory/bandage_item", function(q)',
-    'mod.hook("scripts/ui/global/data_helper", function(q)',
-    'key.find("_perkTree") != null',
-    'result[key] = ::BandagesEnhanced.Helpers.appendBandagesEnhancedPerks(value, row);',
-    'if (isNecro && ("necro_perkTree" in result))',
-    'merged Bandages Enhanced perk into necro_perkTree',
-    'result.bandages_enhanced_perkTree <- ::BandagesEnhanced.Helpers.appendBandagesEnhancedPerks(::Const.Perks.Perks, row);',
-    'merged Bandages Enhanced perk into',
-    'injecting Bandages Enhanced fallback perk tree',
+    'runtime mods: legends=',
+    '::Hooks.hasMod("mod_legends")',
+    '::Hooks.hasMod("mod_PoV")',
+    '::BandagesEnhanced.Compatibility.Legends.registerHooks(mod);',
+    '::BandagesEnhanced.Compatibility.PoV.registerHooks(mod);',
+    '::BandagesEnhanced.Vanilla.registerHooks(mod);',
     'bandage skill hook create',
     'bandage skill isUsable',
     'bandage skill verify target',
@@ -129,7 +133,8 @@ Require-Token 'scripts/!mods_preload/mod_bandages_enhanced_settings.nut' @(
     'combat.addRangeSetting("PerkHealPercentMaxHP", 65, 0, 100, 1',
     'recovery.addRangeSetting("LightInjuryMaxDays", 1, 1, 10, 1',
     'recovery.addRangeSetting("HeavyInjuryMaxDays", 2, 1, 10, 1',
-    'recovery.addRangeSetting("LightInjuryThresholdDays", 3, 1, 10, 1'
+    'recovery.addRangeSetting("LightInjuryThresholdDays", 3, 1, 10, 1',
+    'recovery.addBooleanSetting("TreatPoVMutationSickness", false'
 )
 
 Require-Token 'scripts/config/z_bandages_enhanced.nut' @(
@@ -147,10 +152,12 @@ Require-Token 'scripts/config/z_bandages_enhanced.nut' @(
     'local missing = _target.getHitpointsMax() - _target.getHitpoints();',
     'function canTreatVanillaBandageCondition( _target )',
     'function canUseBandageInCombatOn( _target )',
+    'function hasLegendsBandageMastery( _actor )',
     'function applyCombatBandage( _user, _target )',
     'function compressTemporaryInjuries( _actor )',
     'function getRosterBandageUseResult( _actor )',
     'function getRosterTreatableInjuries( _actor )',
+    'function shouldSkipPoVMutationSickness( _actor, _injury )',
     'function getRosterTreatmentRows()',
     'function countBandagesInStash()',
     'function consumeBandageFromStash()',
@@ -175,10 +182,44 @@ Require-Token 'scripts/config/z_bandages_enhanced.nut' @(
     'ImageOffsetX = actor.getImageOffsetX()',
     'ImageOffsetY = actor.getImageOffsetY()',
     'BackgroundImagePath = actor.getBackground().getIconColored()',
-    'TreatableInjuries = this.getRosterTreatableInjuries(actor)',
+    'local treatableInjuries = ("TreatableInjuries" in result) ? result.TreatableInjuries : this.getRosterTreatableInjuries(actor);',
+    'TreatableInjuries = treatableInjuries',
     'ID = injury.getID()',
     'Icon = injury.getIconColored()',
     'Name = injury.getNameOnly()'
+)
+
+Require-Token 'scripts/mods/bandages_enhanced/vanilla_perk_tree_patch.nut' @(
+    '::BandagesEnhanced.Vanilla <- {',
+    'function registerHooks( _mod )',
+    'mod.hook("scripts/ui/global/data_helper", function(q)',
+    'key.find("_perkTree") != null',
+    'result[key] = ::BandagesEnhanced.Helpers.appendBandagesEnhancedPerks(value, row);',
+    'result.bandages_enhanced_perkTree <- ::BandagesEnhanced.Helpers.appendBandagesEnhancedPerks(::Const.Perks.Perks, row);',
+    '[Vanilla] merged perk into',
+    '[Vanilla] injected fallback perk tree'
+)
+
+Require-Token 'scripts/mods/bandages_enhanced/compatibility/legends_perk_tree_patch.nut' @(
+    '::BandagesEnhanced.Compatibility.Legends <- {',
+    'function hasRuntime()',
+    '::Hooks.hasMod("mod_legends")',
+    '("PerkDefs" in ::Const.Perks)',
+    '::Const.Perks.addPerkDefObjects',
+    'function setBandagesEnhancedPerkDef( _perkDef )',
+    '::Legends.Perk.BandagesEnhanced',
+    '::Const.Perks.PerkDefs.BandagesEnhanced',
+    'function addBandagesEnhancedToBackground( _background )',
+    '_background.addPerk(perkDef, this.getConfiguredRow(), true)',
+    'q.buildPerkTree = @(__original) function()',
+    '[Legends] character_background buildPerkTree hook registered'
+)
+
+Require-Token 'scripts/mods/bandages_enhanced/compatibility/pov_witcher_patch.nut' @(
+    '::BandagesEnhanced.Compatibility.PoV <- {',
+    'return ::Hooks.hasMod("mod_PoV");',
+    'TreatPoVMutationSickness',
+    '[PoV] mod_PoV detected'
 )
 
 Require-Token 'scripts/config/z_bandages_enhanced.nut' @(
