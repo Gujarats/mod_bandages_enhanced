@@ -140,6 +140,27 @@ addPerk({
 		return _target.getHitpoints() < _target.getHitpointsMax();
 	}
 
+	function hasLegendsBandageMastery( _actor )
+	{
+		if (_actor == null
+			|| !::Hooks.hasMod("mod_legends")
+			|| !("Legends" in getroottable())
+			|| !("Perk" in ::Legends)
+			|| !("LegendSpecBandage" in ::Legends.Perk)
+			|| _actor.getSkills() == null)
+		{
+			return false;
+		}
+
+		local skills = _actor.getSkills();
+		if ("hasPerk" in skills)
+		{
+			return skills.hasPerk(::Legends.Perk.LegendSpecBandage);
+		}
+
+		return false;
+	}
+
 	function removeVanillaBandageConditions( _target )
 	{
 		while (_target.getSkills().hasSkill("effects.bleeding"))
@@ -211,6 +232,7 @@ addPerk({
 		foreach (injury in injuries)
 		{
 			if (injury.isType(::Const.SkillType.PermanentInjury)) continue;
+			if (this.shouldSkipPoVMutationSickness(_actor, injury)) continue;
 
 			local currentMax = this.getCurrentMaxHealingDays(injury);
 			local targetMax = currentMax <= lightThreshold ? lightMax : heavyMax;
@@ -370,6 +392,7 @@ addPerk({
 		foreach (injury in allInjuries)
 		{
 			if (injury.isType(::Const.SkillType.PermanentInjury)) continue;
+			if (this.shouldSkipPoVMutationSickness(_actor, injury)) continue;
 
 			local currentMax = this.getCurrentMaxHealingDays(injury);
 			local targetMax = currentMax <= lightThreshold ? lightMax : heavyMax;
@@ -383,6 +406,22 @@ addPerk({
 		}
 
 		return injuries;
+	}
+
+	function shouldSkipPoVMutationSickness( _actor, _injury )
+	{
+		if (_injury == null || _injury.getID() != "injury.pov_sickness2" || !::Hooks.hasMod("mod_PoV"))
+		{
+			return false;
+		}
+
+		if (::BandagesEnhanced.Mod.ModSettings.getSetting("TreatPoVMutationSickness").getValue())
+		{
+			return false;
+		}
+
+		this.debugLog("[PoV] skipped Mutation Sickness for " + (_actor == null ? "<null>" : _actor.getName()));
+		return true;
 	}
 
 	function getRosterTreatmentRows()

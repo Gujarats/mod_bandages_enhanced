@@ -5,10 +5,15 @@ if (!("BandagesEnhanced" in getroottable()))
 
 ::BandagesEnhanced.ID <- "mod_bandages_enhanced";
 ::BandagesEnhanced.Name <- "Bandages Enhanced";
-::BandagesEnhanced.Version <- "0.0.5";
+::BandagesEnhanced.Version <- "0.1.0";
 
 ::BandagesEnhanced.HookMod <- ::Hooks.register(::BandagesEnhanced.ID, ::BandagesEnhanced.Version, ::BandagesEnhanced.Name);
 ::BandagesEnhanced.HookMod.require("mod_msu >= 1.9.0");
+
+::include("scripts/mods/bandages_enhanced/developer_options");
+::include("scripts/mods/bandages_enhanced/vanilla_perk_tree_patch");
+::include("scripts/mods/bandages_enhanced/compatibility/legends_perk_tree_patch");
+::include("scripts/mods/bandages_enhanced/compatibility/pov_witcher_patch");
 
 ::BandagesEnhanced.openTreatmentScreen <- function()
 {
@@ -82,13 +87,15 @@ if (!("BandagesEnhanced" in getroottable()))
 	);
 }
 
-::BandagesEnhanced.HookMod.queue(">mod_msu", ">mod_druid", ">mod_aura_routing", ">mod_from_the_grave", ">mod_legends", ">mod_necro", function()
+::BandagesEnhanced.HookMod.queue(">mod_msu", ">mod_druid", ">mod_aura_routing", ">mod_from_the_grave", ">mod_legends", ">mod_PoV", ">mod_necro", function()
 {
 	::BandagesEnhanced.Mod <- ::MSU.Class.Mod(::BandagesEnhanced.ID, ::BandagesEnhanced.Version, ::BandagesEnhanced.Name);
 	::BandagesEnhanced.registerSettings();
 	::BandagesEnhanced.configureDebugLogging();
+	::BandagesEnhanced.DeveloperOptions.init();
 	::BandagesEnhanced.registerKeybinds();
 	::BandagesEnhanced.Helpers.debugLog("settings initialized");
+	::BandagesEnhanced.Helpers.debugLog("runtime mods: legends=" + ::Hooks.hasMod("mod_legends") + " pov=" + ::Hooks.hasMod("mod_PoV"));
 
 	local mod = ::BandagesEnhanced.HookMod;
 
@@ -161,46 +168,27 @@ if (!("BandagesEnhanced" in getroottable()))
 		}
 	});
 
+	if (::Hooks.hasMod("mod_legends"))
+	{
+		::BandagesEnhanced.Compatibility.Legends.registerHooks(mod);
+
+		if (::Hooks.hasMod("mod_PoV"))
+		{
+			::BandagesEnhanced.Compatibility.PoV.registerHooks(mod);
+		}
+	}
+	else
+	{
+		::BandagesEnhanced.Vanilla.registerHooks(mod);
+	}
+
 	mod.hook("scripts/ui/global/data_helper", function(q)
 	{
 		q.convertEntityToUIData = @(__original) function( _entity, _activeEntity )
 		{
-			local result = __original(_entity, _activeEntity);
-
-			if (_entity != null)
-			{
-				local settings = ::BandagesEnhanced.Mod.ModSettings;
-				local row = settings.getSetting("PerkLevel").getValue();
-				local injected = false;
-
-				foreach (key, value in result)
-				{
-					if (typeof key == "string"
-						&& key.find("_perkTree") != null
-						&& key != "bandages_enhanced_perkTree"
-						&& typeof value == "array")
-					{
-						result[key] = ::BandagesEnhanced.Helpers.appendBandagesEnhancedPerks(value, row);
-						injected = true;
-						if (key == "necro_perkTree")
-						{
-							::BandagesEnhanced.Helpers.debugLog("merged Bandages Enhanced perk into necro_perkTree for " + _entity.getName());
-						}
-						else
-						{
-							::BandagesEnhanced.Helpers.debugLog("merged Bandages Enhanced perk into " + key + " for " + _entity.getName());
-						}
-					}
-				}
-
-				if (!injected)
-				{
-					result.bandages_enhanced_perkTree <- ::BandagesEnhanced.Helpers.appendBandagesEnhancedPerks(::Const.Perks.Perks, row);
-					::BandagesEnhanced.Helpers.debugLog("injecting Bandages Enhanced fallback perk tree for " + _entity.getName());
-				}
-			}
-
-			return result;
+			::BandagesEnhanced.DeveloperOptions.applyTestKitOnce();
+			::BandagesEnhanced.DeveloperOptions.grantBandagesEnhancedForTest(_entity);
+			return __original(_entity, _activeEntity);
 		}
 	});
 
