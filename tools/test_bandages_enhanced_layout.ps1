@@ -45,6 +45,7 @@ Require-File 'README.md'
 Require-File 'scripts/!mods_preload/mod_bandages_enhanced_loader.nut'
 Require-File 'scripts/!mods_preload/mod_bandages_enhanced_settings.nut'
 Require-File 'scripts/config/z_bandages_enhanced.nut'
+Require-File 'scripts/mods/bandages_enhanced/developer_options.nut'
 Require-File 'scripts/mods/bandages_enhanced/vanilla_perk_tree_patch.nut'
 Require-File 'scripts/mods/bandages_enhanced/compatibility/legends_perk_tree_patch.nut'
 Require-File 'scripts/mods/bandages_enhanced/compatibility/pov_witcher_patch.nut'
@@ -71,13 +72,17 @@ Require-Token 'scripts/!mods_preload/mod_bandages_enhanced_loader.nut' @(
     '::BandagesEnhanced.Version <- "0.0.5";',
     '::Hooks.register(::BandagesEnhanced.ID, ::BandagesEnhanced.Version, ::BandagesEnhanced.Name)',
     '::BandagesEnhanced.HookMod.require("mod_msu >= 1.9.0");',
+    '::include("scripts/mods/bandages_enhanced/developer_options");',
     '::include("scripts/mods/bandages_enhanced/vanilla_perk_tree_patch");',
     '::include("scripts/mods/bandages_enhanced/compatibility/legends_perk_tree_patch");',
     '::include("scripts/mods/bandages_enhanced/compatibility/pov_witcher_patch");',
     '::BandagesEnhanced.HookMod.queue(">mod_msu", ">mod_druid", ">mod_aura_routing", ">mod_from_the_grave", ">mod_legends", ">mod_PoV", ">mod_necro", function()',
     '::BandagesEnhanced.registerSettings();',
     '::BandagesEnhanced.configureDebugLogging();',
+    '::BandagesEnhanced.DeveloperOptions.init();',
     '::BandagesEnhanced.registerKeybinds();',
+    '::BandagesEnhanced.DeveloperOptions.applyTestKitOnce();',
+    '::BandagesEnhanced.DeveloperOptions.grantBandagesEnhancedForTest(_entity);',
     '::BandagesEnhanced.Helpers.debugLog("settings initialized");',
     '::BandagesEnhanced.Helpers.debugLog("opening treatment screen from keybind");',
     'local showRosterBandagePopup = function( _message )',
@@ -134,7 +139,29 @@ Require-Token 'scripts/!mods_preload/mod_bandages_enhanced_settings.nut' @(
     'recovery.addRangeSetting("LightInjuryMaxDays", 1, 1, 10, 1',
     'recovery.addRangeSetting("HeavyInjuryMaxDays", 2, 1, 10, 1',
     'recovery.addRangeSetting("LightInjuryThresholdDays", 3, 1, 10, 1',
-    'recovery.addBooleanSetting("TreatPoVMutationSickness", false'
+    'recovery.addBooleanSetting("TreatPoVMutationSickness", false',
+    'local developer = ::BandagesEnhanced.Mod.ModSettings.addPage("Developer Options");',
+    'developer.addBooleanSetting("EnableDeveloperOptions", false',
+    'developer.addBooleanSetting("DeveloperGrantTestKitOnLoad", false',
+    'developer.addBooleanSetting("DeveloperGrantBandagesEnhancedPerk", false',
+    'developer.addRangeSetting("DeveloperBandageCount", 10, 0, 99, 1',
+    'developer.addRangeSetting("DeveloperXP", 10000, 0, 50000, 500',
+    'developer.addRangeSetting("DeveloperPerkPoints", 10, 0, 20, 1'
+)
+
+Require-Token 'scripts/mods/bandages_enhanced/developer_options.nut' @(
+    '::BandagesEnhanced.DeveloperOptions = {',
+    'function init()',
+    'function applyTestKitOnce()',
+    'function grantBandagesEnhancedForTest( _entity )',
+    'scripts/items/accessory/bandage_item',
+    'scripts/skills/perks/bandages_enhanced_perk',
+    'getBandagesEnhancedPerkDefNumber',
+    'DeveloperGrantTestKitOnLoad',
+    'DeveloperGrantBandagesEnhancedPerk',
+    'DeveloperBandageCount',
+    'DeveloperXP',
+    'DeveloperPerkPoints'
 )
 
 Require-Token 'scripts/config/z_bandages_enhanced.nut' @(
@@ -313,6 +340,10 @@ Require-Token 'README.md' @(
     'press `Shift+C` on the world map',
     'current stash bandage count',
     'can be rebound through MSU keybind settings',
+    'Developer Options',
+    'Grant Developer Test Kit',
+    'Grant Bandages Enhanced Perk',
+    'Defaults are 10 bandages, 10000 XP, and 10 perk points.',
     'Runtime assumptions'
 )
 

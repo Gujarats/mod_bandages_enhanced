@@ -10,6 +10,7 @@ if (!("BandagesEnhanced" in getroottable()))
 ::BandagesEnhanced.HookMod <- ::Hooks.register(::BandagesEnhanced.ID, ::BandagesEnhanced.Version, ::BandagesEnhanced.Name);
 ::BandagesEnhanced.HookMod.require("mod_msu >= 1.9.0");
 
+::include("scripts/mods/bandages_enhanced/developer_options");
 ::include("scripts/mods/bandages_enhanced/vanilla_perk_tree_patch");
 ::include("scripts/mods/bandages_enhanced/compatibility/legends_perk_tree_patch");
 ::include("scripts/mods/bandages_enhanced/compatibility/pov_witcher_patch");
@@ -91,6 +92,7 @@ if (!("BandagesEnhanced" in getroottable()))
 	::BandagesEnhanced.Mod <- ::MSU.Class.Mod(::BandagesEnhanced.ID, ::BandagesEnhanced.Version, ::BandagesEnhanced.Name);
 	::BandagesEnhanced.registerSettings();
 	::BandagesEnhanced.configureDebugLogging();
+	::BandagesEnhanced.DeveloperOptions.init();
 	::BandagesEnhanced.registerKeybinds();
 	::BandagesEnhanced.Helpers.debugLog("settings initialized");
 	::BandagesEnhanced.Helpers.debugLog("runtime mods: legends=" + ::Hooks.hasMod("mod_legends") + " pov=" + ::Hooks.hasMod("mod_PoV"));
@@ -179,6 +181,16 @@ if (!("BandagesEnhanced" in getroottable()))
 	{
 		::BandagesEnhanced.Vanilla.registerHooks(mod);
 	}
+
+	mod.hook("scripts/ui/global/data_helper", function(q)
+	{
+		q.convertEntityToUIData = @(__original) function( _entity, _activeEntity )
+		{
+			::BandagesEnhanced.DeveloperOptions.applyTestKitOnce();
+			::BandagesEnhanced.DeveloperOptions.grantBandagesEnhancedForTest(_entity);
+			return __original(_entity, _activeEntity);
+		}
+	});
 
 	mod.hook("scripts/skills/actives/bandage_ally_skill", function(q)
 	{
