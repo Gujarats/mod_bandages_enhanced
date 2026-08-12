@@ -23,6 +23,12 @@ this.bandages_enhanced_screen <- {
 
 	function create()
 	{
+		if (this.m.JSHandle != null)
+		{
+			::BandagesEnhanced.Helpers.debugLog("treatment screen create skipped: already connected");
+			return;
+		}
+
 		this.m.Visible = false;
 		this.m.Animating = false;
 		this.m.JSHandle = this.UI.connect("BandagesEnhancedScreen", this);
@@ -32,7 +38,10 @@ this.bandages_enhanced_screen <- {
 	function destroy()
 	{
 		this.m.OnClosePressedListener = null;
-		this.m.JSHandle = this.UI.disconnect(this.m.JSHandle);
+		if (this.m.JSHandle != null)
+		{
+			this.m.JSHandle = this.UI.disconnect(this.m.JSHandle);
+		}
 		::BandagesEnhanced.Helpers.debugLog("treatment screen destroyed");
 	}
 
