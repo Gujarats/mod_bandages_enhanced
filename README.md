@@ -102,6 +102,10 @@ When `mod_PoV` is also installed, Bandages Enhanced keeps the Legends path and a
 
 Bandages Enhanced initially enhances the item-provided `actives.bandage_ally` path. Legends' free `actives.legend_bandage` from Bandage Mastery is not changed until runtime testing confirms it should receive the same HP restoration.
 
+### Reforged
+
+When Reforged is installed, Bandages Enhanced is available to every player brother through Reforged's normal perk-tree system. The existing Perk Row setting controls its placement (default 2) and requires restart after changing it. Existing saves are updated once after the player roster loads. Reforged's usual perk-point rules still apply.
+
 Assumption: this is a UI/data-rendering compatibility change only; existing save games should continue to load without schema or save-format changes.
 
 Right-clicking bandages outside combat applies treatment to the currently selected character when eligible. The `Shift+C` treatment screen is available when you want to choose from the full roster.

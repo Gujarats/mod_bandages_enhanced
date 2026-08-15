@@ -3,6 +3,19 @@ if (!("BandagesEnhanced" in getroottable()))
 	::BandagesEnhanced <- {};
 }
 
+::BandagesEnhanced.getBandagesEnhancedPerkDefinition <- function()
+{
+	return {
+		ID = "perk.bandages_enhanced",
+		Script = "scripts/skills/perks/bandages_enhanced_perk",
+		Name = "Bandages Enhanced",
+		Tooltip = "Improves bandages so they restore more hitpoints and speed up temporary injury recovery.",
+		Icon = "ui/perks/bandages_enhanced.png",
+		IconDisabled = "ui/perks/bandages_enhanced_sw.png",
+		Row = 2
+	};
+}
+
 ::Const.Perks.BandagesEnhanced <- [];
 
 local function addPerk( perk )
@@ -17,15 +30,7 @@ local function addPerk( perk )
 	::Const.Perks.LookupMap[perk.ID] <- perk;
 }
 
-addPerk({
-	ID = "perk.bandages_enhanced",
-	Script = "scripts/skills/perks/bandages_enhanced_perk",
-	Name = "Bandages Enhanced",
-	Tooltip = "Improves bandages so they restore more hitpoints and speed up temporary injury recovery.",
-	Icon = "ui/perks/bandages_enhanced.png",
-	IconDisabled = "ui/perks/bandages_enhanced_sw.png",
-	Row = 2 // replaced by MSU setting
-});
+addPerk(::BandagesEnhanced.getBandagesEnhancedPerkDefinition());
 
 ::BandagesEnhanced.configureDebugLogging <- function()
 {

@@ -13,6 +13,7 @@ if (!("BandagesEnhanced" in getroottable()))
 ::include("scripts/mods/bandages_enhanced/developer_options");
 ::include("scripts/mods/bandages_enhanced/vanilla_perk_tree_patch");
 ::include("scripts/mods/bandages_enhanced/compatibility/legends_perk_tree_patch");
+::include("scripts/mods/bandages_enhanced/compatibility/reforged_perk_tree_patch");
 ::include("scripts/mods/bandages_enhanced/compatibility/pov_witcher_patch");
 
 ::BandagesEnhanced.openTreatmentScreen <- function()
@@ -87,7 +88,7 @@ if (!("BandagesEnhanced" in getroottable()))
 	);
 }
 
-::BandagesEnhanced.HookMod.queue(">mod_msu", ">mod_druid", ">mod_aura_routing", ">mod_from_the_grave", ">mod_legends", ">mod_PoV", ">mod_necro", function()
+::BandagesEnhanced.HookMod.queue(">mod_msu", ">mod_druid", ">mod_aura_routing", ">mod_from_the_grave", ">mod_legends", ">mod_PoV", ">mod_necro", ">mod_reforged", function()
 {
 	::BandagesEnhanced.Mod <- ::MSU.Class.Mod(::BandagesEnhanced.ID, ::BandagesEnhanced.Version, ::BandagesEnhanced.Name);
 	::BandagesEnhanced.registerSettings();
@@ -166,9 +167,19 @@ if (!("BandagesEnhanced" in getroottable()))
 
 			__original();
 		}
+
+		q.onUpdate = @(__original) function()
+		{
+			__original();
+			::BandagesEnhanced.Compatibility.Reforged.tryMigrateExistingPlayerTrees();
+		}
 	});
 
-	if (::Hooks.hasMod("mod_legends"))
+	if (::Hooks.hasMod("mod_reforged"))
+	{
+		::BandagesEnhanced.Helpers.debugLog("[Reforged] Dynamic Perks compatibility selected");
+	}
+	else if (::Hooks.hasMod("mod_legends"))
 	{
 		::BandagesEnhanced.Compatibility.Legends.registerHooks(mod);
 
@@ -334,3 +345,8 @@ if (!("BandagesEnhanced" in getroottable()))
 		}
 	});
 });
+
+::BandagesEnhanced.HookMod.queue(">mod_reforged", function()
+{
+	::BandagesEnhanced.Compatibility.Reforged.register();
+}, ::Hooks.QueueBucket.AfterHooks);

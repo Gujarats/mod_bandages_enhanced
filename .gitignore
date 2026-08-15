@@ -1,3 +1,5 @@
-.brush_build_manifest.json
 dist
 *.json
+docs/
+tests/
+tools/
