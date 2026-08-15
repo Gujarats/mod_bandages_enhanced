@@ -1,3 +1,6 @@
+
+// NOTES : currently exist for reference just in case if the mod_PoV needed more compatibility
+// just boilerplate for now, no actual hooks yet.
 if (!("BandagesEnhanced" in getroottable()))
 {
 	::BandagesEnhanced <- {};

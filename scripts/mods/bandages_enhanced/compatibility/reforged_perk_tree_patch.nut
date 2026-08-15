@@ -42,6 +42,7 @@ if (!("Compatibility" in ::BandagesEnhanced))
 		return true;
 	},
 
+	//in mod_reforged pg.rf_always_1 is the perk group that is used for bag perks and available to all characters, so we can use it to inject the perk into all characters.
 	function addBandagesEnhancedToUniversalGroup()
 	{
 		local group = ::DynamicPerks.PerkGroups.findById("pg.rf_always_1");
@@ -77,13 +78,6 @@ if (!("Compatibility" in ::BandagesEnhanced))
 
 	function addBandagesEnhancedToExistingPlayerTrees()
 	{
-		if (!this.hasRuntime()
-			|| !("World" in getroottable())
-			|| ::World.getPlayerRoster() == null)
-		{
-			return false;
-		}
-
 		local added = 0;
 		local alreadyPresent = 0;
 		local unavailable = 0;
@@ -117,6 +111,8 @@ if (!("Compatibility" in ::BandagesEnhanced))
 		return true;
 	},
 
+	// using this approach to prevent the perk being added over and over again to existing players on each load, since the perk is already added to the universal group.
+	// this approach used for existing saves that does not installed the mod_bandages_enhanced
 	function tryMigrateExistingPlayerTrees()
 	{
 		if (this.ExistingPlayersMigrated) return true;
@@ -133,6 +129,7 @@ if (!("Compatibility" in ::BandagesEnhanced))
 		return true;
 	},
 
+	// for new campaigns, the perk is added to the universal perk group, so all new characters will have it available automatically.
 	function register()
 	{
 		if (!this.hasRuntime())
