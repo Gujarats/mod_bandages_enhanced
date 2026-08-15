@@ -1,0 +1,147 @@
+if (!("BandagesEnhanced" in getroottable()))
+{
+	::BandagesEnhanced <- {};
+}
+
+if (!("Compatibility" in ::BandagesEnhanced))
+{
+	::BandagesEnhanced.Compatibility <- {};
+}
+
+::BandagesEnhanced.Compatibility.Reforged <- {
+	ExistingPlayersMigrated = false,
+
+	function hasRuntime()
+	{
+		return ::Hooks.hasMod("mod_reforged")
+			&& ("DynamicPerks" in getroottable())
+			&& ("Perks" in ::DynamicPerks)
+			&& ("PerkGroups" in ::DynamicPerks)
+			&& ("addPerks" in ::DynamicPerks.Perks)
+			&& ("findById" in ::DynamicPerks.PerkGroups);
+	},
+
+	function getConfiguredRow()
+	{
+		local row = ::BandagesEnhanced.Mod.ModSettings.getSetting("PerkLevel").getValue();
+		return ::Math.max(1, ::Math.min(row, 7));
+	},
+
+	function registerPerkDefinition()
+	{
+		if (::Const.Perks.findById("perk.bandages_enhanced") != null)
+		{
+			::BandagesEnhanced.Helpers.debugLog("[Reforged] Bandages Enhanced perk definition already registered");
+			return true;
+		}
+
+		local perk = ::BandagesEnhanced.getBandagesEnhancedPerkDefinition();
+		delete perk.Row;
+		::DynamicPerks.Perks.addPerks([perk]);
+		::BandagesEnhanced.Helpers.debugLog("[Reforged] Bandages Enhanced perk definition registered");
+		return true;
+	},
+
+	function addBandagesEnhancedToUniversalGroup()
+	{
+		local group = ::DynamicPerks.PerkGroups.findById("pg.rf_always_1");
+		if (group == null)
+		{
+			::BandagesEnhanced.Helpers.debugLog("[Reforged] Bandages Enhanced insertion skipped: universal perk group is unavailable");
+			return false;
+		}
+
+		local tree = group.getTree();
+		foreach (i, perks in tree)
+		{
+			foreach (perkID in perks)
+			{
+				if (perkID == "perk.bandages_enhanced")
+				{
+					::BandagesEnhanced.Helpers.debugLog("[Reforged] Bandages Enhanced already present in universal perk group row=" + (i + 1));
+					return true;
+				}
+			}
+		}
+
+		local row = this.getConfiguredRow();
+		while (tree.len() < row)
+		{
+			tree.push([]);
+		}
+
+		tree[row - 1].push("perk.bandages_enhanced");
+		::BandagesEnhanced.Helpers.debugLog("[Reforged] Bandages Enhanced inserted into universal perk group row=" + row);
+		return true;
+	},
+
+	function addBandagesEnhancedToExistingPlayerTrees()
+	{
+		if (!this.hasRuntime()
+			|| !("World" in getroottable())
+			|| ::World.getPlayerRoster() == null)
+		{
+			return false;
+		}
+
+		local added = 0;
+		local alreadyPresent = 0;
+		local unavailable = 0;
+		foreach (actor in ::World.getPlayerRoster().getAll())
+		{
+			if (actor == null)
+			{
+				unavailable++;
+				continue;
+			}
+
+			local perkTree = actor.getPerkTree();
+			if (perkTree == null)
+			{
+				unavailable++;
+				continue;
+			}
+
+			if ("perk.bandages_enhanced" in perkTree.getPerks())
+			{
+				alreadyPresent++;
+				continue;
+			}
+
+			perkTree.addPerk("perk.bandages_enhanced", this.getConfiguredRow());
+			added++;
+			::BandagesEnhanced.Helpers.debugLog("[Reforged] Bandages Enhanced added to existing player perk tree for " + actor.getName() + " row=" + this.getConfiguredRow());
+		}
+
+		::BandagesEnhanced.Helpers.debugLog("[Reforged] existing-player Bandages Enhanced migration complete added=" + added + " already_present=" + alreadyPresent + " unavailable=" + unavailable);
+		return true;
+	},
+
+	function tryMigrateExistingPlayerTrees()
+	{
+		if (this.ExistingPlayersMigrated) return true;
+		if (!this.hasRuntime()
+			|| !("World" in getroottable())
+			|| ::World.getPlayerRoster() == null
+			|| ::World.getPlayerRoster().getAll().len() == 0)
+		{
+			return false;
+		}
+
+		this.addBandagesEnhancedToExistingPlayerTrees();
+		this.ExistingPlayersMigrated = true;
+		return true;
+	},
+
+	function register()
+	{
+		if (!this.hasRuntime())
+		{
+			::BandagesEnhanced.Helpers.debugLog("[Reforged] Bandages Enhanced registration skipped: required Dynamic Perks APIs are unavailable");
+			return false;
+		}
+
+		if (!this.registerPerkDefinition()) return false;
+		return this.addBandagesEnhancedToUniversalGroup();
+	}
+};

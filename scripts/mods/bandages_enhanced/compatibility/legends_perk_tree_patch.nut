@@ -69,17 +69,10 @@ if (!("Compatibility" in ::BandagesEnhanced))
 		}
 
 		this.setBandagesEnhancedPerkDef(null);
-		::Const.Perks.addPerkDefObjects([
-			{
-				ID = "perk.bandages_enhanced",
-				Script = "scripts/skills/perks/bandages_enhanced_perk",
-				Name = "Bandages Enhanced",
-				Tooltip = "Improves bandages so they restore more hitpoints and speed up temporary injury recovery.",
-				Icon = "ui/perks/bandages_enhanced.png",
-				IconDisabled = "ui/perks/bandages_enhanced_sw.png",
-				Const = "BandagesEnhanced"
-			}
-		]);
+		local perk = ::BandagesEnhanced.getBandagesEnhancedPerkDefinition();
+		delete perk.Row;
+		perk.Const <- "BandagesEnhanced";
+		::Const.Perks.addPerkDefObjects([perk]);
 
 		this.BandagesEnhancedPerkDef = ::Legends.Perk.BandagesEnhanced;
 		::BandagesEnhanced.Helpers.debugLog("[Legends] registered perk def index=" + this.BandagesEnhancedPerkDef);
