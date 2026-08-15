@@ -3,3 +3,4 @@ dist
 docs/
 tests/
 tools/
+test-result/
