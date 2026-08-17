@@ -9,7 +9,7 @@ if (!("BandagesEnhanced" in getroottable()))
 	local combat = ::BandagesEnhanced.Mod.ModSettings.addPage("Combat");
 	local recovery = ::BandagesEnhanced.Mod.ModSettings.addPage("Recovery");
 
-	local debugLogging = general.addBooleanSetting("DebugLogging", true, "Debug Logging", "Write Bandages Enhanced debug lines to log.html.");
+	local debugLogging = general.addBooleanSetting("DebugLogging", false, "Debug Logging", "Write Bandages Enhanced debug lines to log.html.");
 	debugLogging.addCallback(function( _data = null )
 	{
 		::BandagesEnhanced.configureDebugLogging();
