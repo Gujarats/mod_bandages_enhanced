@@ -34,23 +34,20 @@ addPerk(::BandagesEnhanced.getBandagesEnhancedPerkDefinition());
 
 ::BandagesEnhanced.configureDebugLogging <- function()
 {
-	if (::BandagesEnhanced.Mod.ModSettings.getSetting("DebugLogging").getValue())
+	if ("GuzBluezDebugLogController" in getroottable()
+		&& "registerTarget" in ::GuzBluezDebugLogController)
 	{
-		::BandagesEnhanced.Mod.Debug.enable();
+		::GuzBluezDebugLogController.registerTarget(::BandagesEnhanced.ID, ::BandagesEnhanced.Mod);
+		return;
 	}
-	else
-	{
-		::BandagesEnhanced.Mod.Debug.disable();
-	}
+
+	::BandagesEnhanced.Mod.Debug.setFlag("default", ::BandagesEnhanced.Mod.ModSettings.getSetting("DebugLogging").getValue());
 }
 
 ::BandagesEnhanced.Helpers <- {
 	function debugLog( _message )
 	{
-		if (::BandagesEnhanced.Mod.ModSettings.getSetting("DebugLogging").getValue())
-		{
-			::BandagesEnhanced.Mod.Debug.printLog("[BandagesEnhanced] " + _message);
-		}
+		::BandagesEnhanced.Mod.Debug.printLog("[BandagesEnhanced] " + _message);
 	}
 
 	function hasBandagesEnhancedPerk( _actor )
