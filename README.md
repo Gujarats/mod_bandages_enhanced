@@ -78,15 +78,9 @@ Permanent injuries are ignored. If a character only has permanent injuries, the 
 - Heavy Injury Max Days: default 2.
 - Treat PoV Mutation Sickness: disabled by default.
 
-## Developer Options
+## Debug Logging
 
-Developer options are disabled by default and are intended for disposable test saves.
-
-- Enable `Developer Options > Enable Developer Options` to activate test helpers.
-- Enable `Grant Developer Test Kit` to add bandages once per session, add XP, and add perk points to roster brothers.
-- Enable `Grant Bandages Enhanced Perk` to grant `perk.bandages_enhanced` directly when a player character is loaded into UI data.
-- Defaults are 10 bandages, 10000 XP, and 10 perk points.
-- With Legends loaded, the helper also attempts to add the Bandages Enhanced perk to the Legends background perk tree before granting the skill.
+`Debug Logging` remains a General-page setting. Global Developer Test overrides it while installed; its explicit test buttons replace the removed automatic developer grants.
 
 ## Compatibility Notes
 
