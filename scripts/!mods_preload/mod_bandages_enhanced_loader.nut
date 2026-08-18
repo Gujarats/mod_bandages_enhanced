@@ -11,7 +11,7 @@ if (!("BandagesEnhanced" in getroottable()))
 ::BandagesEnhanced.HookMod.require("mod_msu >= 1.9.0");
 
 ::include("scripts/mods/bandages_enhanced/bandage_logic");
-::include("scripts/mods/bandages_enhanced/vanilla_perk_tree_patch");
+::include("scripts/mods/bandages_enhanced/hooks/vanilla_bandage_hooks");
 ::include("scripts/mods/bandages_enhanced/compatibility/legends_perk_tree_patch");
 ::include("scripts/mods/bandages_enhanced/compatibility/reforged_perk_tree_patch");
 ::include("scripts/mods/bandages_enhanced/compatibility/pov_witcher_patch");
@@ -104,6 +104,7 @@ if (!("BandagesEnhanced" in getroottable()))
 	::Hooks.registerJS("ui/mods/bandages_enhanced_screen.js");
 	::Hooks.registerCSS("ui/mods/bandages_enhanced_screen.css");
 
+	// not sure why it does now showing the log message whenever I press shift + c
 	local showRosterBandagePopup = function( _message )
 	{
 		if ("Tactical" in getroottable() && ::Tactical.isActive())
@@ -136,6 +137,25 @@ if (!("BandagesEnhanced" in getroottable()))
 		{
 			::BandagesEnhanced.Helpers.debugLog("roster bandage popup unavailable: " + _message);
 		}
+	}
+
+	if (::Hooks.hasMod("mod_reforged"))
+	{
+		// why reforge does not register its own hooks here ??
+		::BandagesEnhanced.Helpers.debugLog("[Reforged] Dynamic Perks compatibility selected");
+	}
+	else if (::Hooks.hasMod("mod_legends"))
+	{
+		::BandagesEnhanced.Compatibility.Legends.registerHooks(mod);
+
+		if (::Hooks.hasMod("mod_PoV"))
+		{
+			::BandagesEnhanced.Compatibility.PoV.registerHooks(mod);
+		}
+	}
+	else
+	{
+		::BandagesEnhanced.Vanilla.registerHooks(mod);
 	}
 
 	mod.hook("scripts/states/world_state", function(q)
@@ -173,25 +193,6 @@ if (!("BandagesEnhanced" in getroottable()))
 			::BandagesEnhanced.Compatibility.Reforged.tryMigrateExistingPlayerTrees();
 		}
 	});
-
-	if (::Hooks.hasMod("mod_reforged"))
-	{
-		// why reforge does not register its own hooks here ??
-		::BandagesEnhanced.Helpers.debugLog("[Reforged] Dynamic Perks compatibility selected");
-	}
-	else if (::Hooks.hasMod("mod_legends"))
-	{
-		::BandagesEnhanced.Compatibility.Legends.registerHooks(mod);
-
-		if (::Hooks.hasMod("mod_PoV"))
-		{
-			::BandagesEnhanced.Compatibility.PoV.registerHooks(mod);
-		}
-	}
-	else
-	{
-		::BandagesEnhanced.Vanilla.registerHooks(mod);
-	}
 
 	mod.hook("scripts/ui/global/data_helper", function(q)
 	{
