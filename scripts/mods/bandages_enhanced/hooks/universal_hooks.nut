@@ -1,3 +1,4 @@
+// Hooks that are mandatory for all the game type : vanilla, mod legends, mod reforged
 if (!("BandagesEnhanced" in getroottable()))
 {
 	::BandagesEnhanced <- {};
