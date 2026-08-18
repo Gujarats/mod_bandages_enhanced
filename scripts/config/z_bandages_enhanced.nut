@@ -1,3 +1,6 @@
+// This file will be loaded at the very end of the game startup after all other assets and script are loaded
+// This is to make sure the perk definition is loaded after all other perk definitions are loaded
+// th z_ file exist and work for vanilla and reforged and legend
 if (!("BandagesEnhanced" in getroottable()))
 {
 	::BandagesEnhanced <- {};
