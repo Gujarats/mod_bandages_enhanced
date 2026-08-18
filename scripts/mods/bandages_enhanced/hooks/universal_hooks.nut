@@ -42,7 +42,7 @@ if (!("BandagesEnhanced" in getroottable()))
 			}
 		});
 
-		mod.hook("scripts/ui/global/data_helper", function(q)
+		_mod.hook("scripts/ui/global/data_helper", function(q)
 		{
 			q.convertEntityToUIData = @(__original) function( _entity, _activeEntity )
 			{
@@ -50,7 +50,7 @@ if (!("BandagesEnhanced" in getroottable()))
 			}
 		});
 
-		mod.hook("scripts/skills/actives/bandage_ally_skill", function(q)
+		_mod.hook("scripts/skills/actives/bandage_ally_skill", function(q)
 		{
 			q.create = @(__original) function()
 			{
@@ -136,7 +136,7 @@ if (!("BandagesEnhanced" in getroottable()))
 			}
 		});
 
-		mod.hook("scripts/items/accessory/bandage_item", function(q)
+		_mod.hook("scripts/items/accessory/bandage_item", function(q)
 		{
 			q.create = @(__original) function()
 			{
