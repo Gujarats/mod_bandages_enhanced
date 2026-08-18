@@ -128,14 +128,13 @@ if (!("Compatibility" in ::BandagesEnhanced))
 		{
 			q.buildPerkTree = @(__original) function()
 			{
-				if (!compLegends.hasRuntime())
+				if (compLegends.hasRuntime())
 				{
-					this.BandagesEnhancedPerkDef = null;
-					::BandagesEnhanced.Helpers.debugLog("[Legends] runtime unavailable; skipped perk def registration");
-					return _original();
+					compLegends.registerPerkDef();
+					compLegends.addBandagesEnhancedToBackground(this);
+				}else{
+					::BandagesEnhanced.Helpers.debugLog("[Legends] no runtime valid please check hasRuntime()")
 				}
-				compLegends.registerPerkDef();
-				compLegends.addBandagesEnhancedToBackground(this);
 				return __original();
 			}
 		});
