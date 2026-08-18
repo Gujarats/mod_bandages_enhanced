@@ -88,6 +88,7 @@ These are default settings, you can change it on mod options menu
  - yes compatible
 
 ### Legends
+ - yes compatible
  - compatible with submod [PoV](https://github.com/TheBlueTemplar/Path_Of_The_Vattghern_Public)
 
 ### Reforged
