@@ -10,7 +10,7 @@ if (!("BandagesEnhanced" in getroottable()))
 ::BandagesEnhanced.HookMod <- ::Hooks.register(::BandagesEnhanced.ID, ::BandagesEnhanced.Version, ::BandagesEnhanced.Name);
 ::BandagesEnhanced.HookMod.require("mod_msu >= 1.9.0");
 
-::include("scripts/mods/bandages_enhanced/bandage_logic");
+::include("scripts/mods/bandages_enhanced/bandage_helpers");
 ::include("scripts/mods/bandages_enhanced/hooks/vanilla_bandage_hooks");
 ::include("scripts/mods/bandages_enhanced/hooks/universal_hooks");
 ::include("scripts/mods/bandages_enhanced/compatibility/legends_perk_tree_patch");
@@ -96,7 +96,6 @@ if (!("BandagesEnhanced" in getroottable()))
 	::BandagesEnhanced.configureDebugLogging();
 	::BandagesEnhanced.registerKeybinds();
 	::BandagesEnhanced.Helpers.debugLog("settings initialized");
-	::BandagesEnhanced.Helpers.debugLog("runtime mods: legends=" + ::Hooks.hasMod("mod_legends") + " pov=" + ::Hooks.hasMod("mod_PoV"));
 
 	local mod = ::BandagesEnhanced.HookMod;
 

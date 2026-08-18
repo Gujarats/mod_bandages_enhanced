@@ -3,17 +3,7 @@ if (!("BandagesEnhanced" in getroottable()))
 	::BandagesEnhanced <- {};
 }
 
-::BandagesEnhanced.configureDebugLogging <- function()
-{
-	if ("GuzBluezDebugLogController" in getroottable()
-		&& "registerTarget" in ::GuzBluezDebugLogController)
-	{
-		::GuzBluezDebugLogController.registerTarget(::BandagesEnhanced.ID, ::BandagesEnhanced.Mod);
-		return;
-	}
 
-	::BandagesEnhanced.Mod.Debug.setFlag("default", ::BandagesEnhanced.Mod.ModSettings.getSetting("DebugLogging").getValue());
-}
 
 ::BandagesEnhanced.Helpers <- {
 	function debugLog( _message )

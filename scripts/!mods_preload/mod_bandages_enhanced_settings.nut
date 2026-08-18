@@ -29,3 +29,15 @@ if (!("BandagesEnhanced" in getroottable()))
 	recovery.addBooleanSetting("TreatPoVMutationSickness", false, "Treat PoV Mutation Sickness", "Allow Bandages Enhanced to shorten PoV Mutation Sickness. Disabled by default until runtime balance is confirmed.");
 
 }
+
+::BandagesEnhanced.configureDebugLogging <- function()
+{
+	if ("GuzBluezDebugLogController" in getroottable()
+		&& "registerTarget" in ::GuzBluezDebugLogController)
+	{
+		::GuzBluezDebugLogController.registerTarget(::BandagesEnhanced.ID, ::BandagesEnhanced.Mod);
+		return;
+	}
+
+	::BandagesEnhanced.Mod.Debug.setFlag("default", ::BandagesEnhanced.Mod.ModSettings.getSetting("DebugLogging").getValue());
+}
