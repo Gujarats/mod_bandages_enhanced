@@ -50,13 +50,6 @@ if (!("Compatibility" in ::BandagesEnhanced))
 
 	function registerPerkDef()
 	{
-		if (!this.hasRuntime())
-		{
-			this.BandagesEnhancedPerkDef = null;
-			::BandagesEnhanced.Helpers.debugLog("[Legends] runtime unavailable; skipped perk def registration");
-			return null;
-		}
-
 		foreach (i, perkDef in ::Const.Perks.PerkDefObjects)
 		{
 			if (perkDef != null && "ID" in perkDef && perkDef.ID == ::BandagesEnhanced.Constants.BandageEnchancePerkID)
@@ -86,11 +79,6 @@ if (!("Compatibility" in ::BandagesEnhanced))
 			return this.BandagesEnhancedPerkDef;
 		}
 
-		if (!this.hasRuntime())
-		{
-			return null;
-		}
-
 		foreach (i, perkDef in ::Const.Perks.PerkDefObjects)
 		{
 			if (perkDef != null && "ID" in perkDef && perkDef.ID == ::BandagesEnhanced.Constants.BandageEnchancePerkID)
@@ -105,7 +93,7 @@ if (!("Compatibility" in ::BandagesEnhanced))
 
 	function addBandagesEnhancedToBackground( _background )
 	{
-		if (!this.hasRuntime() || _background == null)
+		if (_background == null)
 		{
 			return false;
 		}
@@ -135,21 +123,20 @@ if (!("Compatibility" in ::BandagesEnhanced))
 
 	function registerHooks( _mod )
 	{
-		this.registerPerkDef();
-
-		if (!this.hasRuntime())
-		{
-			return;
-		}
-
-		local module = ::BandagesEnhanced.Compatibility.Legends;
+		local compLegends = ::BandagesEnhanced.Compatibility.Legends;
 		_mod.hook("scripts/skills/backgrounds/character_background", function(q)
 		{
 			q.buildPerkTree = @(__original) function()
 			{
-				local attributes = __original();
-				module.addBandagesEnhancedToBackground(this);
-				return attributes;
+				if (!compLegends.hasRuntime())
+				{
+					this.BandagesEnhancedPerkDef = null;
+					::BandagesEnhanced.Helpers.debugLog("[Legends] runtime unavailable; skipped perk def registration");
+					return _original();
+				}
+				compLegends.registerPerkDef();
+				compLegends.addBandagesEnhancedToBackground(this);
+				return __original();
 			}
 		});
 
