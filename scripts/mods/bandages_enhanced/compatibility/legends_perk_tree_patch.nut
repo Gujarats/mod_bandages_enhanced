@@ -50,16 +50,9 @@ if (!("Compatibility" in ::BandagesEnhanced))
 
 	function registerPerkDef()
 	{
-		if (!this.hasRuntime())
-		{
-			this.BandagesEnhancedPerkDef = null;
-			::BandagesEnhanced.Helpers.debugLog("[Legends] runtime unavailable; skipped perk def registration");
-			return null;
-		}
-
 		foreach (i, perkDef in ::Const.Perks.PerkDefObjects)
 		{
-			if (perkDef != null && "ID" in perkDef && perkDef.ID == "perk.bandages_enhanced")
+			if (perkDef != null && "ID" in perkDef && perkDef.ID == ::BandagesEnhanced.Constants.BandageEnchancePerkID)
 			{
 				this.setBandagesEnhancedPerkDef(i);
 				this.BandagesEnhancedPerkDef = i;
@@ -86,14 +79,9 @@ if (!("Compatibility" in ::BandagesEnhanced))
 			return this.BandagesEnhancedPerkDef;
 		}
 
-		if (!this.hasRuntime())
-		{
-			return null;
-		}
-
 		foreach (i, perkDef in ::Const.Perks.PerkDefObjects)
 		{
-			if (perkDef != null && "ID" in perkDef && perkDef.ID == "perk.bandages_enhanced")
+			if (perkDef != null && "ID" in perkDef && perkDef.ID == ::BandagesEnhanced.Constants.BandageEnchancePerkID)
 			{
 				this.BandagesEnhancedPerkDef = i;
 				return i;
@@ -105,7 +93,7 @@ if (!("Compatibility" in ::BandagesEnhanced))
 
 	function addBandagesEnhancedToBackground( _background )
 	{
-		if (!this.hasRuntime() || _background == null)
+		if (_background == null)
 		{
 			return false;
 		}
@@ -123,7 +111,7 @@ if (!("Compatibility" in ::BandagesEnhanced))
 			return false;
 		}
 
-		if (_background.getPerk("perk.bandages_enhanced") != null)
+		if (_background.getPerk(::BandagesEnhanced.Constants.BandageEnchancePerkID) != null)
 		{
 			return false;
 		}
@@ -135,21 +123,14 @@ if (!("Compatibility" in ::BandagesEnhanced))
 
 	function registerHooks( _mod )
 	{
-		this.registerPerkDef();
-
-		if (!this.hasRuntime())
-		{
-			return;
-		}
-
-		local module = ::BandagesEnhanced.Compatibility.Legends;
+		local compLegends = ::BandagesEnhanced.Compatibility.Legends;
+		compLegends.registerPerkDef();
 		_mod.hook("scripts/skills/backgrounds/character_background", function(q)
 		{
 			q.buildPerkTree = @(__original) function()
 			{
-				local attributes = __original();
-				module.addBandagesEnhancedToBackground(this);
-				return attributes;
+				compLegends.addBandagesEnhancedToBackground(this);
+				return __original();
 			}
 		});
 

@@ -10,10 +10,11 @@ if (!("BandagesEnhanced" in getroottable()))
 	local recovery = ::BandagesEnhanced.Mod.ModSettings.addPage("Recovery");
 
 	local debugLogging = general.addBooleanSetting("DebugLogging", false, "Debug Logging", "Write Bandages Enhanced debug lines to log.html.");
-	debugLogging.addCallback(function( _data = null )
+	debugLogging.addCallback(function( _ )
 	{
 		::BandagesEnhanced.configureDebugLogging();
 	});
+
 	general.addRangeSetting("BandageValue", 25, 1, 1000, 1, "Bandage Value", "Base value for bandages. Default matches vanilla.");
 	general.addRangeSetting("PerkLevel", 2, 1, 7, 1, "Perk Row", "Which perk row unlocks Bandages Enhanced. Requires restart.");
 
@@ -27,4 +28,16 @@ if (!("BandagesEnhanced" in getroottable()))
 	recovery.addBooleanSetting("PreferHeaviestInjuryFirst", true, "Prefer Heaviest Injuries First", "Treat heavier temporary injuries before lighter ones when multiple injuries are eligible.");
 	recovery.addBooleanSetting("TreatPoVMutationSickness", false, "Treat PoV Mutation Sickness", "Allow Bandages Enhanced to shorten PoV Mutation Sickness. Disabled by default until runtime balance is confirmed.");
 
+}
+
+::BandagesEnhanced.configureDebugLogging <- function()
+{
+	if ("GuzBluezDebugLogController" in getroottable()
+		&& "registerTarget" in ::GuzBluezDebugLogController)
+	{
+		::GuzBluezDebugLogController.registerTarget(::BandagesEnhanced.ID, ::BandagesEnhanced.Mod);
+		return;
+	}
+
+	::BandagesEnhanced.Mod.Debug.setFlag("default", ::BandagesEnhanced.Mod.ModSettings.getSetting("DebugLogging").getValue());
 }
