@@ -142,7 +142,9 @@ if (!("BandagesEnhanced" in getroottable()))
 
 	if (::Hooks.hasMod("mod_reforged"))
 	{
-		// why reforge does not register its own hooks here ??
+		// This is just for logger
+		// the registration is happend on different queue hooks
+		// please see AfterHooks
 		::BandagesEnhanced.Helpers.debugLog("[Reforged] Dynamic Perks compatibility selected");
 	}
 	else if (::Hooks.hasMod("mod_legends"))
