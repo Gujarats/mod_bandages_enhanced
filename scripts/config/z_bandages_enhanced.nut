@@ -6,12 +6,16 @@ if (!("BandagesEnhanced" in getroottable()))
 	::BandagesEnhanced <- {};
 }
 
+::BandagesEnhanced.Constants <- {
+	BandageEnchancePerkID = "perk.bandages_enhanced"
+};
+
 // Some how the perk definition only works on the z_ file config
 // if we move this function to non z_ file, the game crash on loading the game or creating new game.
 ::BandagesEnhanced.getBandagesEnhancedPerkDefinition <- function()
 {
 	return {
-		ID = "perk.bandages_enhanced",
+		ID = ::BandagesEnhanced.Constants.BandageEnchancePerkID,
 		Script = "scripts/skills/perks/bandages_enhanced_perk",
 		Name = "Bandages Enhanced",
 		Tooltip = "Improves bandages so they restore more hitpoints and speed up temporary injury recovery.",

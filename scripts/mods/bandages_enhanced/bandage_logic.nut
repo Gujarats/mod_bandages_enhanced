@@ -23,7 +23,7 @@ if (!("BandagesEnhanced" in getroottable()))
 
 	function hasBandagesEnhancedPerk( _actor )
 	{
-		return _actor != null && _actor.getSkills() != null && _actor.getSkills().hasSkill("perk.bandages_enhanced");
+		return _actor != null && _actor.getSkills() != null && _actor.getSkills().hasSkill(::BandagesEnhanced.Constants.BandageEnchancePerkID);
 	}
 
 	function clonePerkTree( _perkTree )

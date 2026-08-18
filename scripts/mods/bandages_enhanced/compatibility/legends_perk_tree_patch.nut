@@ -59,7 +59,7 @@ if (!("Compatibility" in ::BandagesEnhanced))
 
 		foreach (i, perkDef in ::Const.Perks.PerkDefObjects)
 		{
-			if (perkDef != null && "ID" in perkDef && perkDef.ID == "perk.bandages_enhanced")
+			if (perkDef != null && "ID" in perkDef && perkDef.ID == ::BandagesEnhanced.Constants.BandageEnchancePerkID)
 			{
 				this.setBandagesEnhancedPerkDef(i);
 				this.BandagesEnhancedPerkDef = i;
@@ -93,7 +93,7 @@ if (!("Compatibility" in ::BandagesEnhanced))
 
 		foreach (i, perkDef in ::Const.Perks.PerkDefObjects)
 		{
-			if (perkDef != null && "ID" in perkDef && perkDef.ID == "perk.bandages_enhanced")
+			if (perkDef != null && "ID" in perkDef && perkDef.ID == ::BandagesEnhanced.Constants.BandageEnchancePerkID)
 			{
 				this.BandagesEnhancedPerkDef = i;
 				return i;
@@ -123,7 +123,7 @@ if (!("Compatibility" in ::BandagesEnhanced))
 			return false;
 		}
 
-		if (_background.getPerk("perk.bandages_enhanced") != null)
+		if (_background.getPerk(::BandagesEnhanced.Constants.BandageEnchancePerkID) != null)
 		{
 			return false;
 		}

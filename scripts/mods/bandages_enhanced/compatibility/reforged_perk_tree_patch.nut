@@ -29,7 +29,7 @@ if (!("Compatibility" in ::BandagesEnhanced))
 
 	function registerPerkDefinition()
 	{
-		if (::Const.Perks.findById("perk.bandages_enhanced") != null)
+		if (::Const.Perks.findById(::BandagesEnhanced.Constants.BandageEnchancePerkID) != null)
 		{
 			::BandagesEnhanced.Helpers.debugLog("[Reforged] Bandages Enhanced perk definition already registered");
 			return true;
@@ -57,7 +57,7 @@ if (!("Compatibility" in ::BandagesEnhanced))
 		{
 			foreach (perkID in perks)
 			{
-				if (perkID == "perk.bandages_enhanced")
+				if (perkID == ::BandagesEnhanced.Constants.BandageEnchancePerkID)
 				{
 					::BandagesEnhanced.Helpers.debugLog("[Reforged] Bandages Enhanced already present in universal perk group row=" + (i + 1));
 					return true;
@@ -71,7 +71,7 @@ if (!("Compatibility" in ::BandagesEnhanced))
 			tree.push([]);
 		}
 
-		tree[row - 1].push("perk.bandages_enhanced");
+		tree[row - 1].push(::BandagesEnhanced.Constants.BandageEnchancePerkID);
 		::BandagesEnhanced.Helpers.debugLog("[Reforged] Bandages Enhanced inserted into universal perk group row=" + row);
 		return true;
 	},
@@ -96,13 +96,13 @@ if (!("Compatibility" in ::BandagesEnhanced))
 				continue;
 			}
 
-			if ("perk.bandages_enhanced" in perkTree.getPerks())
+			if (::BandagesEnhanced.Constants.BandageEnchancePerkID in perkTree.getPerks())
 			{
 				alreadyPresent++;
 				continue;
 			}
 
-			perkTree.addPerk("perk.bandages_enhanced", this.getConfiguredRow());
+			perkTree.addPerk(::BandagesEnhanced.Constants.BandageEnchancePerkID, this.getConfiguredRow());
 			added++;
 			::BandagesEnhanced.Helpers.debugLog("[Reforged] Bandages Enhanced added to existing player perk tree for " + actor.getName() + " row=" + this.getConfiguredRow());
 		}
