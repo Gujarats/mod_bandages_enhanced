@@ -67,7 +67,7 @@ Treatment consumes one bandage from the stash. It does not restore hitpoints on 
 Permanent injuries are ignored. If a character only has permanent injuries, the screen will explain that bandages cannot help.
 
 ## Settings
-
+These are default settings, you can change it on mod options menu
 - Debug Logging: enabled by default for the first version.
 - Bandage Value: default 25, matching vanilla.
 - Perk Row: default 2.
@@ -84,27 +84,16 @@ Permanent injuries are ignored. If a character only has permanent injuries, the 
 
 ## Compatibility Notes
 
-The perk is injected into compatible perk trees, including common custom perk-tree setups. The treatment screen is opened from the world map with an MSU keybind, so it avoids changing the vanilla character screen interaction directly.
+### Vanilla
+ - yes compatible
 
-Necromancer characters from `mod_necro` are handled explicitly: Bandages Enhanced now injects into `necro_perkTree` when present while keeping the existing generic perk-tree merge logic unchanged.
-
-### Legends + PoV
-
-When `mod_legends` is installed, Bandages Enhanced uses a Legends-specific perk-tree patch instead of the vanilla UI-only perk-tree injection. The perk is registered as a real Legends perk and added to background perk trees so it can be unlocked through Legends backend logic.
-
-When `mod_PoV` is also installed, Bandages Enhanced keeps the Legends path and adds PoV-aware logging. PoV Mutation Sickness is excluded from Bandages Enhanced recovery by default until tested otherwise.
-
-Bandages Enhanced initially enhances the item-provided `actives.bandage_ally` path. Legends' free `actives.legend_bandage` from Bandage Mastery is not changed until runtime testing confirms it should receive the same HP restoration.
+### Legends
+ - compatible with submod [PoV](https://github.com/TheBlueTemplar/Path_Of_The_Vattghern_Public)
 
 ### Reforged
+ - yes compatible
 
-When Reforged is installed, Bandages Enhanced is available to every player brother through Reforged's normal perk-tree system. The existing Perk Row setting controls its placement (default 2) and requires restart after changing it. Existing saves are updated once after the player roster loads. Reforged's usual perk-point rules still apply.
-
-Assumption: this is a UI/data-rendering compatibility change only; existing save games should continue to load without schema or save-format changes.
-
-Right-clicking bandages outside combat applies treatment to the currently selected character when eligible. The `Shift+C` treatment screen is available when you want to choose from the full roster.
-
-## Runtime assumptions
+## Notes
 
 - The perk uses project-local circular perk icons `ui/perks/bandages_enhanced.png` and `ui/perks/bandages_enhanced_sw.png`, derived from the vanilla bandage item icon.
 - The treatment screen uses the proven custom world-screen pattern used by Item Spawner and Bro Editor: a Squirrel UI screen, registered JS/CSS, `UI.connect`, and a world-map MSU keybind.
@@ -115,11 +104,3 @@ Right-clicking bandages outside combat applies treatment to the currently select
 - Modal world/character-screen popups are suppressed during tactical combat because that UI state can freeze combat input.
 - In Legends, Bandages Enhanced is persisted into background custom perk trees through `background.addPerk()`. Saves that receive this perk should keep `mod_bandages_enhanced` installed.
 - PoV's Modern Hooks ID is `mod_PoV`; this is the ID used for load-order and runtime detection.
-
-## Build
-
-Use `modbb` from this folder. Do not manually build the zip.
-
-## Debug Log
-
-Check `C:\Users\gujar\Documents\Battle Brothers\log.html` for lines beginning with `[BandagesEnhanced]`.
