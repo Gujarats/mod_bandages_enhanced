@@ -143,7 +143,7 @@ if (!("BandagesEnhanced" in getroottable()))
 	{
 		// This is just for logger
 		// the registration is happend on different queue hooks
-		// please see AfterHooks
+		// please search ::Hooks.QueueBucket.AfterHooks
 		::BandagesEnhanced.Helpers.debugLog("[Reforged] Dynamic Perks compatibility selected");
 	}
 	else if (::Hooks.hasMod("mod_legends"))
