@@ -3,8 +3,6 @@ if (!("BandagesEnhanced" in getroottable()))
 	::BandagesEnhanced <- {};
 }
 
-
-
 ::BandagesEnhanced.configureDebugLogging <- function()
 {
 	if ("GuzBluezDebugLogController" in getroottable()
