@@ -175,6 +175,7 @@ if (!("BandagesEnhanced" in getroottable()))
 
 	if (::Hooks.hasMod("mod_reforged"))
 	{
+		// why reforge does not register its own hooks here ??
 		::BandagesEnhanced.Helpers.debugLog("[Reforged] Dynamic Perks compatibility selected");
 	}
 	else if (::Hooks.hasMod("mod_legends"))
@@ -342,6 +343,8 @@ if (!("BandagesEnhanced" in getroottable()))
 	});
 });
 
+// I assume the reforged needs to have its own hook queue
+//because the register only work if included with AfterHooks
 ::BandagesEnhanced.HookMod.queue(">mod_reforged", function()
 {
 	::BandagesEnhanced.Compatibility.Reforged.register();

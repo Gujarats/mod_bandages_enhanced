@@ -10,10 +10,11 @@ if (!("BandagesEnhanced" in getroottable()))
 	local recovery = ::BandagesEnhanced.Mod.ModSettings.addPage("Recovery");
 
 	local debugLogging = general.addBooleanSetting("DebugLogging", false, "Debug Logging", "Write Bandages Enhanced debug lines to log.html.");
-	debugLogging.addCallback(function( _data = null )
+	debugLogging.addCallback(function( _ )
 	{
 		::BandagesEnhanced.configureDebugLogging();
 	});
+
 	general.addRangeSetting("BandageValue", 25, 1, 1000, 1, "Bandage Value", "Base value for bandages. Default matches vanilla.");
 	general.addRangeSetting("PerkLevel", 2, 1, 7, 1, "Perk Row", "Which perk row unlocks Bandages Enhanced. Requires restart.");
 
