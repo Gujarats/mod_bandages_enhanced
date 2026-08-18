@@ -10,6 +10,7 @@ if (!("BandagesEnhanced" in getroottable()))
 ::BandagesEnhanced.HookMod <- ::Hooks.register(::BandagesEnhanced.ID, ::BandagesEnhanced.Version, ::BandagesEnhanced.Name);
 ::BandagesEnhanced.HookMod.require("mod_msu >= 1.9.0");
 
+::include("scripts/mods/bandages_enhanced/bandage_logic");
 ::include("scripts/mods/bandages_enhanced/vanilla_perk_tree_patch");
 ::include("scripts/mods/bandages_enhanced/compatibility/legends_perk_tree_patch");
 ::include("scripts/mods/bandages_enhanced/compatibility/reforged_perk_tree_patch");
