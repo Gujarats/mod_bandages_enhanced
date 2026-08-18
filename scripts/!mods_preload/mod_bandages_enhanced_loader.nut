@@ -146,7 +146,7 @@ if (!("BandagesEnhanced" in getroottable()))
 		// please search ::Hooks.QueueBucket.AfterHooks
 		::BandagesEnhanced.Helpers.debugLog("[Reforged] Dynamic Perks compatibility selected");
 	}
-	else if (::Hooks.hasMod("mod_legends"))
+	else if (::BandagesEnhanced.Compatibility.Legends.hasRuntime())
 	{
 		::BandagesEnhanced.Compatibility.Legends.registerHooks(mod);
 

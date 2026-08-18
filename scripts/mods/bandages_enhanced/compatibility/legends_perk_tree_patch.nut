@@ -124,17 +124,12 @@ if (!("Compatibility" in ::BandagesEnhanced))
 	function registerHooks( _mod )
 	{
 		local compLegends = ::BandagesEnhanced.Compatibility.Legends;
+		compLegends.registerPerkDef();
 		_mod.hook("scripts/skills/backgrounds/character_background", function(q)
 		{
 			q.buildPerkTree = @(__original) function()
 			{
-				if (compLegends.hasRuntime())
-				{
-					compLegends.registerPerkDef();
-					compLegends.addBandagesEnhancedToBackground(this);
-				}else{
-					::BandagesEnhanced.Helpers.debugLog("[Legends] no runtime valid please check hasRuntime()")
-				}
+				compLegends.addBandagesEnhancedToBackground(this);
 				return __original();
 			}
 		});
