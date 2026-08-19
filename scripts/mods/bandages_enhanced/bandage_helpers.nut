@@ -65,12 +65,14 @@ if (!("BandagesEnhanced" in getroottable()))
 		return false;
 	}
 
-	function appendBandagesEnhancedPerks( _perkTree, _row )
+	// append the bandage Enchance to the perk tree for specific row
+	// _row is the level of the perk that can be unlocked in the UI perk tree character
+	// if _row not specified then defaul 1
+	function appendBandagesEnhancedPerks( _perkTree, _row = 1 )
 	{
 		local perks = this.clonePerkTree(_perkTree);
-		local row = ::Math.max(1, ::Math.min(_row, 7)) - 1;
-
-		while (perks.len() <= row)
+		_row = _row - 1;
+		while (perks.len() <= _row)
 		{
 			perks.push([]);
 		}
@@ -81,9 +83,9 @@ if (!("BandagesEnhanced" in getroottable()))
 
 			local p = clone perk;
 			if ("verifyPrerequisites" in p) delete p.verifyPrerequisites;
-			perks[row].push(p);
+			perks[_row].push(p);
 		}
-
+		this.debugLog("Appending perk success")
 		return perks;
 	}
 

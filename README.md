@@ -85,6 +85,7 @@ These are default settings, you can change it on mod options menu
 
 ### Vanilla
  - yes compatible
+ - The perk is added to the character screen's shared vanilla perk tree. The default `Perk Row` setting of `2` means the second displayed perk row and requires a game restart after changing it.
 
 ### Legends
  - yes compatible
