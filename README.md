@@ -17,7 +17,6 @@ In vanilla Battle Brothers, bandages are mostly a narrow emergency tool: stop bl
 - Outside combat, press `Shift+C` on the world map to open the Bandages Enhanced treatment screen.
 - The treatment screen shows all roster members, their eligibility, the reason treatment is unavailable, and the current stash bandage count.
 - Treatable temporary injuries are shown as hoverable injury icons in the treatment screen.
-- Right-clicking bandages outside combat applies recovery to the selected character when that character has Bandages Enhanced and an eligible temporary injury.
 
 ## Why This Mod Exists
 

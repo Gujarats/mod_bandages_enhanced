@@ -83,6 +83,7 @@ if (!("Compatibility" in ::BandagesEnhanced))
 
 		if (_background.getPerk(::BandagesEnhanced.Constants.BandageEnchancePerkID) != null)
 		{
+			::BandagesEnhanced.Helpers.debugLog("[Legends] background getPerk() is not null");
 			return false;
 		}
 
@@ -99,8 +100,9 @@ if (!("Compatibility" in ::BandagesEnhanced))
 		{
 			q.buildPerkTree = @(__original) function()
 			{
+				local attributes = __original();
 				compLegends.addBandagesEnhancedToBackground(this);
-				return __original();
+				return attributes;
 			}
 		});
 
