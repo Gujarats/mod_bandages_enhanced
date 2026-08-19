@@ -5,7 +5,7 @@ if (!("BandagesEnhanced" in getroottable()))
 
 ::BandagesEnhanced.Helpers <- {
 	// these are coming from the Vanilla Ids
-	BandageTreatableWoundIDs = ["injury.cut_artery", "injury.cut_throat", "injury.grazed_neck"],
+	TreatableWoundIDs = ["injury.cut_artery", "injury.cut_throat", "injury.grazed_neck"],
 
 	function debugLog( _message )
 	{
@@ -126,7 +126,7 @@ if (!("BandagesEnhanced" in getroottable()))
 
 		if (_target.getSkills().hasSkill("effects.bleeding")) return true;
 
-		foreach (woundID in this.BandageTreatableWoundIDs)
+		foreach (woundID in this.TreatableWoundIDs)
 		{
 			local skill = _target.getSkills().getSkillByID(woundID);
 			if (skill != null && skill.isFresh()) return true;
@@ -172,7 +172,7 @@ if (!("BandagesEnhanced" in getroottable()))
 			_target.getSkills().removeByID("effects.bleeding");
 		}
 
-		foreach (woundID in this.BandageTreatableWoundIDs)
+		foreach (woundID in this.TreatableWoundIDs)
 		{
 			local skill = _target.getSkills().getSkillByID(woundID);
 			if (skill != null && skill.isFresh()) _target.getSkills().remove(skill);
