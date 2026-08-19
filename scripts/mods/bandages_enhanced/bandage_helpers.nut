@@ -54,6 +54,7 @@ if (!("BandagesEnhanced" in getroottable()))
 		return perks;
 	}
 
+	// Vanilla introduce the nested array
 	function hasPerkInTree( _perkTree, _perkID )
 	{
 		foreach (row in _perkTree)
@@ -119,7 +120,7 @@ if (!("BandagesEnhanced" in getroottable()))
 		return ::Math.max(0, ::Math.min(missing, amount));
 	}
 
-	function canTreatVanillaBandageCondition( _target )
+	function isWoundTreatable( _target )
 	{
 		if (_target == null || _target.getSkills() == null) return false;
 
@@ -137,10 +138,12 @@ if (!("BandagesEnhanced" in getroottable()))
 	function canUseBandageInCombatOn( _target )
 	{
 		if (_target == null || !_target.isAlive()) return false;
-		if (this.canTreatVanillaBandageCondition(_target)) return true;
+		if (this.isWoundTreatable(_target)) return true;
 		return _target.getHitpoints() < _target.getHitpointsMax();
 	}
 
+	// Mod Legends has its own perk for bandage mastery
+	// it has similar use case, but bandages enhanced introduce new treatment mechanics for injury; I personally rarely use this on mod legend due to camp mechanics
 	function hasLegendsBandageMastery( _actor )
 	{
 		if (_actor == null
@@ -162,7 +165,7 @@ if (!("BandagesEnhanced" in getroottable()))
 		return false;
 	}
 
-	function removeVanillaBandageConditions( _target )
+	function removeWounds( _target )
 	{
 		while (_target.getSkills().hasSkill("effects.bleeding"))
 		{
@@ -180,15 +183,15 @@ if (!("BandagesEnhanced" in getroottable()))
 	{
 		if (_target == null) return false;
 
-		local didTreat = this.canTreatVanillaBandageCondition(_target);
-		this.removeVanillaBandageConditions(_target);
+		local treatable = this.isWoundTreatable(_target);
+		this.removeWounds(_target);
 
 		local healAmount = this.getMaxHPHealAmount(_user, _target);
 		if (healAmount > 0)
 		{
 			local actor = _target;
 			actor.setHitpoints(::Math.min(actor.getHitpointsMax(), actor.getHitpoints() + healAmount));
-			didTreat = true;
+			treatable = true;
 
 			if (!actor.isHiddenToPlayer())
 			{
@@ -196,13 +199,13 @@ if (!("BandagesEnhanced" in getroottable()))
 			}
 		}
 
-		if (!didTreat)
+		if (!treatable)
 		{
 			this.debugLog("combat bandage rejected for " + _target.getName() + ": no bleeding, fresh wound, or missing hitpoints");
 		}
 
 		this.debugLog("combat bandage used by " + (_user == null ? "<null>" : _user.getName()) + " on " + _target.getName() + ", heal=" + healAmount);
-		return didTreat;
+		return treatable;
 	}
 
 	function getCurrentMaxHealingDays( _injury )
@@ -234,31 +237,30 @@ if (!("BandagesEnhanced" in getroottable()))
 
 		local maxInjuries = this.setting("InjuriesPerBandageUse");
 		local changed = 0;
-		if (maxInjuries < 1) maxInjuries = 1;
 		local preferHeaviestFirst = this.setting("PreferHeaviestInjuryFirst");
 
-		local candidates = [];
+		local treatableInjuries = [];
 		local injuries = _actor.getSkills().query(::Const.SkillType.TemporaryInjury);
 
 		foreach (injury in injuries)
 		{
 			if (!this.isTreatableInjury(_actor, injury)) continue;
 
-			candidates.push({
+			treatableInjuries.push({
 				Injury = injury,
 				CurrentMax = this.getCurrentMaxHealingDays(injury)
 			});
 		}
 
-		if (preferHeaviestFirst && candidates.len() > 1)
+		if (preferHeaviestFirst && treatableInjuries.len() > 1)
 		{
-			for (local i = 0; i < candidates.len() - 1; i++)
+			for (local i = 0; i < treatableInjuries.len() - 1; i++)
 			{
 				local best = i;
-				for (local j = i + 1; j < candidates.len(); j++)
+				for (local j = i + 1; j < treatableInjuries.len(); j++)
 				{
-					local candidate = candidates[j];
-					local bestCandidate = candidates[best];
+					local candidate = treatableInjuries[j];
+					local bestCandidate = treatableInjuries[best];
 					if (candidate.CurrentMax > bestCandidate.CurrentMax
 						|| (candidate.CurrentMax == bestCandidate.CurrentMax && candidate.Injury.getID() > bestCandidate.Injury.getID()))
 					{
@@ -268,23 +270,23 @@ if (!("BandagesEnhanced" in getroottable()))
 
 				if (best != i)
 				{
-					local tmp = candidates[i];
-					candidates[i] = candidates[best];
-					candidates[best] = tmp;
+					local tmp = treatableInjuries[i];
+					treatableInjuries[i] = treatableInjuries[best];
+					treatableInjuries[best] = tmp;
 				}
 			}
 		}
 
 		local treatedIds = [];
-		foreach (candidate in candidates)
+		foreach (treatableInjury in treatableInjuries)
 		{
 			if (changed >= maxInjuries)
 			{
 				break;
 			}
 
-			local injury = candidate.Injury;
-			local targetMax = this.getTargetMaxHealingDays(candidate.CurrentMax);
+			local injury = treatableInjury.Injury;
+			local targetMax = this.getTargetMaxHealingDays(treatableInjury.CurrentMax);
 
 			injury.m.HealingTimeMin = ::Math.min(injury.m.HealingTimeMin, targetMax);
 			injury.m.HealingTimeMax = ::Math.max(injury.m.HealingTimeMin, targetMax);
