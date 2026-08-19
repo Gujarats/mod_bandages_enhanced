@@ -83,6 +83,8 @@ if (!("BandagesEnhanced" in getroottable()))
 
 			local p = clone perk;
 			if ("verifyPrerequisites" in p) delete p.verifyPrerequisites;
+			p.Row <- _row;
+			p.Unlocks <- _row;
 			perks[_row].push(p);
 		}
 		this.debugLog("Appending perk success")

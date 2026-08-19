@@ -21,7 +21,6 @@ if (!("BandagesEnhanced" in getroottable()))
 		Tooltip = "Improves bandages so they restore more hitpoints and speed up temporary injury recovery.",
 		Icon = "ui/perks/bandages_enhanced.png",
 		IconDisabled = "ui/perks/bandages_enhanced_sw.png",
-		Row = 2 // just for temporary definition , this will be replaced by MSU option menu. (required restart if changed)
 	};
 }
 
@@ -30,7 +29,6 @@ if (!("BandagesEnhanced" in getroottable()))
 
 local function addPerk( perk )
 {
-	perk.Unlocks <- perk.Row;
 	perk.verifyPrerequisites <- function( _player, _tooltip )
 	{
 		return true;
