@@ -21,31 +21,10 @@ if (!("Compatibility" in ::BandagesEnhanced))
 			&& ("addPerkDefObjects" in ::Const.Perks);
 	},
 
-	function getConfiguredRow()
-	{
-		local row = ::BandagesEnhanced.Mod.ModSettings.getSetting("PerkLevel").getValue() - 1;
-		return row < 0 ? 0 : row;
-	},
-
 	function setBandagesEnhancedPerkDef( _perkDef )
 	{
-		if (!("BandagesEnhanced" in ::Legends.Perk))
-		{
-			::Legends.Perk.BandagesEnhanced <- _perkDef;
-		}
-		else
-		{
-			::Legends.Perk.BandagesEnhanced = _perkDef;
-		}
-
-		if (!("BandagesEnhanced" in ::Const.Perks.PerkDefs))
-		{
-			::Const.Perks.PerkDefs.BandagesEnhanced <- _perkDef;
-		}
-		else
-		{
-			::Const.Perks.PerkDefs.BandagesEnhanced = _perkDef;
-		}
+		::Legends.Perk.BandagesEnhanced <- _perkDef;
+		::Const.Perks.PerkDefs.BandagesEnhanced <- _perkDef;
 	},
 
 	function registerPerkDef()
@@ -79,16 +58,7 @@ if (!("Compatibility" in ::BandagesEnhanced))
 			return this.BandagesEnhancedPerkDef;
 		}
 
-		foreach (i, perkDef in ::Const.Perks.PerkDefObjects)
-		{
-			if (perkDef != null && "ID" in perkDef && perkDef.ID == ::BandagesEnhanced.Constants.BandageEnchancePerkID)
-			{
-				this.BandagesEnhancedPerkDef = i;
-				return i;
-			}
-		}
-
-		return null;
+		return this.registerPerkDef();
 	},
 
 	function addBandagesEnhancedToBackground( _background )
@@ -116,7 +86,7 @@ if (!("Compatibility" in ::BandagesEnhanced))
 			return false;
 		}
 
-		local added = _background.addPerk(perkDef, this.getConfiguredRow(), true);
+		local added = _background.addPerk(perkDef, ::BandagesEnhanced.Helpers.getConfiguredRow(true), true);
 		::BandagesEnhanced.Helpers.debugLog("[Legends] background add result=" + added + " id=" + _background.getID());
 		return added;
 	},

@@ -25,6 +25,6 @@ if (!("Compatibility" in ::BandagesEnhanced))
 		}
 
 		::BandagesEnhanced.Helpers.debugLog("[PoV] mod_PoV detected; Mutation Sickness treatment setting="
-			+ ::BandagesEnhanced.Mod.ModSettings.getSetting("TreatPoVMutationSickness").getValue());
+			+ ::BandagesEnhanced.Helpers.setting("TreatPoVMutationSickness"));
 	}
 };

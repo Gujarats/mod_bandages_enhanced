@@ -14,8 +14,7 @@ if (!("BandagesEnhanced" in getroottable()))
 
 				if (_entity != null)
 				{
-					local settings = ::BandagesEnhanced.Mod.ModSettings;
-					local row = settings.getSetting("PerkLevel").getValue();
+					local row = ::BandagesEnhanced.Helpers.getConfiguredRow();
 					local injected = false;
 
 					foreach (key, value in result)

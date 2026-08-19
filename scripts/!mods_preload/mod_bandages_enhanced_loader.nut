@@ -5,7 +5,7 @@ if (!("BandagesEnhanced" in getroottable()))
 
 ::BandagesEnhanced.ID <- "mod_bandages_enhanced";
 ::BandagesEnhanced.Name <- "Bandages Enhanced";
-::BandagesEnhanced.Version <- "0.2.0";
+::BandagesEnhanced.Version <- "0.2.1";
 
 ::BandagesEnhanced.HookMod <- ::Hooks.register(::BandagesEnhanced.ID, ::BandagesEnhanced.Version, ::BandagesEnhanced.Name);
 ::BandagesEnhanced.HookMod.require("mod_msu >= 1.9.0");
@@ -104,46 +104,8 @@ if (!("BandagesEnhanced" in getroottable()))
 	::Hooks.registerJS("ui/mods/bandages_enhanced_screen.js");
 	::Hooks.registerCSS("ui/mods/bandages_enhanced_screen.css");
 
-	// not sure why it does now showing the log message whenever I press shift + c
-	local showRosterBandagePopup = function( _message )
-	{
-		if ("Tactical" in getroottable() && ::Tactical.isActive())
-		{
-			::BandagesEnhanced.Helpers.debugLog("roster bandage popup suppressed during tactical: " + _message);
-			return;
-		}
-
-		if ("World" in getroottable()
-			&& ::World.State != null
-			&& "m" in ::World.State
-			&& "CharacterScreen" in ::World.State.m
-			&& ::World.State.m.CharacterScreen != null
-			&& ::World.State.m.CharacterScreen.isVisible()
-			&& ::World.State.m.CharacterScreen.m.JSHandle != null)
-		{
-			::BandagesEnhanced.Helpers.debugLog("roster bandage character popup show: " + _message);
-			::World.State.m.CharacterScreen.m.JSHandle.asyncCall("showBandagesEnhancedPopup", {
-				Title = "Bandages Enhanced",
-				Message = _message
-			});
-		}
-		else if ("World" in getroottable()
-			&& ::World.State != null)
-		{
-			::BandagesEnhanced.Helpers.debugLog("roster bandage world popup fallback show: " + _message);
-			::World.State.showDialogPopup("Bandages Enhanced", _message, null, null, true);
-		}
-		else
-		{
-			::BandagesEnhanced.Helpers.debugLog("roster bandage popup unavailable: " + _message);
-		}
-	}
-
 	if (::Hooks.hasMod("mod_reforged"))
 	{
-		// This is just for logger
-		// the registration is happend on different queue hooks
-		// please search ::Hooks.QueueBucket.AfterHooks
 		::BandagesEnhanced.Helpers.debugLog("[Reforged] Dynamic Perks compatibility selected");
 	}
 	else if (::BandagesEnhanced.Compatibility.Legends.hasRuntime())
@@ -160,14 +122,10 @@ if (!("BandagesEnhanced" in getroottable()))
 		::BandagesEnhanced.Vanilla.registerHooks(mod);
 	}
 
-	//Some hooks are works for all the 3 games : vanilla, mod legends, mod reforged
-	// these hooks are mandatory for all those games type
 	::BandagesEnhanced.Universal.registerHooks(mod)
 
 });
 
-// I assume the reforged needs to have its own hook queue
-//because the register only work if included with AfterHooks
 ::BandagesEnhanced.HookMod.queue(">mod_reforged", function()
 {
 	::BandagesEnhanced.Compatibility.Reforged.register();
