@@ -81,7 +81,8 @@ if (!("BandagesEnhanced" in getroottable()))
 		{
 			if (this.hasPerkInTree(perks, perk.ID)) continue;
 
-			// tooltip
+			// Making the perk tooltip show
+			// This prevents the tooltip’s Unlocks does not exist error.
 			perk.Row <- _row;
 			perk.Unlocks <- _row;
 
@@ -89,6 +90,8 @@ if (!("BandagesEnhanced" in getroottable()))
 			if ("verifyPrerequisites" in p) delete p.verifyPrerequisites;
 
 			//unlocked level
+			// this allow the perk to be unlocked exactly at the level of the perk tree
+			// avoid the perk tree does not unlock after specific level has been gained
 			p.Row <- _row;
 			p.Unlocks <- _row;
 
