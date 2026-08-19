@@ -4,6 +4,7 @@ if (!("BandagesEnhanced" in getroottable()))
 }
 
 ::BandagesEnhanced.Helpers <- {
+	// these are coming from the Vanilla Ids
 	BandageTreatableWoundIDs = ["injury.cut_artery", "injury.cut_throat", "injury.grazed_neck"],
 
 	function debugLog( _message )
@@ -11,6 +12,7 @@ if (!("BandagesEnhanced" in getroottable()))
 		::BandagesEnhanced.Mod.Debug.printLog("[BandagesEnhanced] " + _message);
 	}
 
+	// Making it shorter so it doesn't have to call long settings
 	function setting( _name )
 	{
 		return ::BandagesEnhanced.Mod.ModSettings.getSetting(_name).getValue();
@@ -36,11 +38,10 @@ if (!("BandagesEnhanced" in getroottable()))
 		return _actor != null && _actor.getSkills() != null && _actor.getSkills().hasSkill(::BandagesEnhanced.Constants.BandageEnchancePerkID);
 	}
 
-	function getConfiguredRow( _zeroIndexed = false )
+	function getConfiguredRow(_zeroIndexed = false)
 	{
-		local row = this.setting("PerkLevel");
-		if (_zeroIndexed) row -= 1;
-		return _zeroIndexed ? ::Math.max(0, row) : ::Math.max(1, ::Math.min(row, 7));
+		local row = this.setting("PerkLevel"); // Always between 1 and 7 see mod_bandages_enchanced_settings.nut
+		return _zeroIndexed ? row - 1 : row;
 	}
 
 	function clonePerkTree( _perkTree )
