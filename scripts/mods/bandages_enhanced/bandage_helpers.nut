@@ -3,17 +3,45 @@ if (!("BandagesEnhanced" in getroottable()))
 	::BandagesEnhanced <- {};
 }
 
-
-
 ::BandagesEnhanced.Helpers <- {
+	// these are coming from the Vanilla Ids
+	TreatableWoundIDs = ["injury.cut_artery", "injury.cut_throat", "injury.grazed_neck"],
+
 	function debugLog( _message )
 	{
 		::BandagesEnhanced.Mod.Debug.printLog("[BandagesEnhanced] " + _message);
 	}
 
+	// Making it shorter so it doesn't have to call long settings
+	function setting( _name )
+	{
+		return ::BandagesEnhanced.Mod.ModSettings.getSetting(_name).getValue();
+	}
+
+	function hasWorldState()
+	{
+		return "World" in getroottable() && ::World.State != null;
+	}
+
+	function hasPlayerRoster()
+	{
+		return this.hasWorldState() && ::World.getPlayerRoster() != null;
+	}
+
+	function hasWorldAssets()
+	{
+		return this.hasWorldState() && ::World.Assets != null;
+	}
+
 	function hasBandagesEnhancedPerk( _actor )
 	{
 		return _actor != null && _actor.getSkills() != null && _actor.getSkills().hasSkill(::BandagesEnhanced.Constants.BandageEnchancePerkID);
+	}
+
+	function getConfiguredRow(_zeroIndexed = false)
+	{
+		local row = this.setting("PerkLevel"); // Always between 1 and 7 see mod_bandages_enchanced_settings.nut
+		return _zeroIndexed ? row - 1 : row;
 	}
 
 	function clonePerkTree( _perkTree )
@@ -26,6 +54,7 @@ if (!("BandagesEnhanced" in getroottable()))
 		return perks;
 	}
 
+	// Vanilla introduce the nested array
 	function hasPerkInTree( _perkTree, _perkID )
 	{
 		foreach (row in _perkTree)
@@ -38,12 +67,14 @@ if (!("BandagesEnhanced" in getroottable()))
 		return false;
 	}
 
-	function appendBandagesEnhancedPerks( _perkTree, _row )
+	// append the bandage Enchance to the perk tree for specific row
+	// _row is the level of the perk that can be unlocked in the UI perk tree character
+	// if _row not specified then defaul 1
+	function appendBandagesEnhancedPerks( _perkTree, _row = 1 )
 	{
 		local perks = this.clonePerkTree(_perkTree);
-		local row = ::Math.max(1, ::Math.min(_row, 7)) - 1;
-
-		while (perks.len() <= row)
+		_row = _row - 1;
+		while (perks.len() <= _row)
 		{
 			perks.push([]);
 		}
@@ -52,20 +83,31 @@ if (!("BandagesEnhanced" in getroottable()))
 		{
 			if (this.hasPerkInTree(perks, perk.ID)) continue;
 
+			// Making the perk tooltip show
+			// This prevents the tooltip’s Unlocks does not exist error.
+			perk.Row <- _row;
+			perk.Unlocks <- _row;
+
 			local p = clone perk;
 			if ("verifyPrerequisites" in p) delete p.verifyPrerequisites;
-			perks[row].push(p);
-		}
 
+			//unlocked level
+			// this allow the perk to be unlocked exactly at the level of the perk tree
+			// avoid the perk tree does not unlock after specific level has been gained
+			p.Row <- _row;
+			p.Unlocks <- _row;
+
+			perks[_row].push(p);
+		}
+		this.debugLog("Appending perk success")
 		return perks;
 	}
 
 	function getCombatHealPercent( _actor )
 	{
-		local settings = ::BandagesEnhanced.Mod.ModSettings;
 		return this.hasBandagesEnhancedPerk(_actor)
-			? settings.getSetting("PerkHealPercentMaxHP").getValue()
-			: settings.getSetting("BaseHealPercentMaxHP").getValue();
+			? this.setting("PerkHealPercentMaxHP")
+			: this.setting("BaseHealPercentMaxHP");
 	}
 
 	function getMaxHPHealAmount( _user, _target )
@@ -78,20 +120,17 @@ if (!("BandagesEnhanced" in getroottable()))
 		return ::Math.max(0, ::Math.min(missing, amount));
 	}
 
-	function canTreatVanillaBandageCondition( _target )
+	function isWoundTreatable( _target )
 	{
 		if (_target == null || _target.getSkills() == null) return false;
 
 		if (_target.getSkills().hasSkill("effects.bleeding")) return true;
 
-		local skill = _target.getSkills().getSkillByID("injury.cut_artery");
-		if (skill != null && skill.isFresh()) return true;
-
-		skill = _target.getSkills().getSkillByID("injury.cut_throat");
-		if (skill != null && skill.isFresh()) return true;
-
-		skill = _target.getSkills().getSkillByID("injury.grazed_neck");
-		if (skill != null && skill.isFresh()) return true;
+		foreach (woundID in this.TreatableWoundIDs)
+		{
+			local skill = _target.getSkills().getSkillByID(woundID);
+			if (skill != null && skill.isFresh()) return true;
+		}
 
 		return false;
 	}
@@ -99,10 +138,12 @@ if (!("BandagesEnhanced" in getroottable()))
 	function canUseBandageInCombatOn( _target )
 	{
 		if (_target == null || !_target.isAlive()) return false;
-		if (this.canTreatVanillaBandageCondition(_target)) return true;
+		if (this.isWoundTreatable(_target)) return true;
 		return _target.getHitpoints() < _target.getHitpointsMax();
 	}
 
+	// Mod Legends has its own perk for bandage mastery
+	// it has similar use case, but bandages enhanced introduce new treatment mechanics for injury; I personally rarely use this on mod legend due to camp mechanics
 	function hasLegendsBandageMastery( _actor )
 	{
 		if (_actor == null
@@ -124,36 +165,33 @@ if (!("BandagesEnhanced" in getroottable()))
 		return false;
 	}
 
-	function removeVanillaBandageConditions( _target )
+	function removeWounds( _target )
 	{
 		while (_target.getSkills().hasSkill("effects.bleeding"))
 		{
 			_target.getSkills().removeByID("effects.bleeding");
 		}
 
-		local skill = _target.getSkills().getSkillByID("injury.cut_artery");
-		if (skill != null && skill.isFresh()) _target.getSkills().remove(skill);
-
-		skill = _target.getSkills().getSkillByID("injury.cut_throat");
-		if (skill != null && skill.isFresh()) _target.getSkills().remove(skill);
-
-		skill = _target.getSkills().getSkillByID("injury.grazed_neck");
-		if (skill != null && skill.isFresh()) _target.getSkills().remove(skill);
+		foreach (woundID in this.TreatableWoundIDs)
+		{
+			local skill = _target.getSkills().getSkillByID(woundID);
+			if (skill != null && skill.isFresh()) _target.getSkills().remove(skill);
+		}
 	}
 
 	function applyCombatBandage( _user, _target )
 	{
 		if (_target == null) return false;
 
-		local didTreat = this.canTreatVanillaBandageCondition(_target);
-		this.removeVanillaBandageConditions(_target);
+		local treatable = this.isWoundTreatable(_target);
+		this.removeWounds(_target);
 
 		local healAmount = this.getMaxHPHealAmount(_user, _target);
 		if (healAmount > 0)
 		{
 			local actor = _target;
 			actor.setHitpoints(::Math.min(actor.getHitpointsMax(), actor.getHitpoints() + healAmount));
-			didTreat = true;
+			treatable = true;
 
 			if (!actor.isHiddenToPlayer())
 			{
@@ -161,13 +199,13 @@ if (!("BandagesEnhanced" in getroottable()))
 			}
 		}
 
-		if (!didTreat)
+		if (!treatable)
 		{
 			this.debugLog("combat bandage rejected for " + _target.getName() + ": no bleeding, fresh wound, or missing hitpoints");
 		}
 
 		this.debugLog("combat bandage used by " + (_user == null ? "<null>" : _user.getName()) + " on " + _target.getName() + ", heal=" + healAmount);
-		return didTreat;
+		return treatable;
 	}
 
 	function getCurrentMaxHealingDays( _injury )
@@ -176,46 +214,53 @@ if (!("BandagesEnhanced" in getroottable()))
 		return ht.Max;
 	}
 
+	function getTargetMaxHealingDays( _currentMax )
+	{
+		local threshold = this.setting("LightInjuryThresholdDays");
+		return _currentMax <= threshold
+			? this.setting("LightInjuryMaxDays")
+			: this.setting("HeavyInjuryMaxDays");
+	}
+
+	function isTreatableInjury( _actor, _injury )
+	{
+		if (_injury.isType(::Const.SkillType.PermanentInjury)) return false;
+		if (this.shouldSkipPoVMutationSickness(_actor, _injury)) return false;
+
+		local currentMax = this.getCurrentMaxHealingDays(_injury);
+		return currentMax > this.getTargetMaxHealingDays(currentMax);
+	}
+
 	function compressTemporaryInjuries( _actor )
 	{
 		if (_actor == null || !this.hasBandagesEnhancedPerk(_actor)) return 0;
 
-		local settings = ::BandagesEnhanced.Mod.ModSettings;
-		local lightThreshold = settings.getSetting("LightInjuryThresholdDays").getValue();
-		local lightMax = settings.getSetting("LightInjuryMaxDays").getValue();
-		local heavyMax = settings.getSetting("HeavyInjuryMaxDays").getValue();
-		local maxInjuries = settings.getSetting("InjuriesPerBandageUse").getValue();
+		local maxInjuries = this.setting("InjuriesPerBandageUse");
 		local changed = 0;
-		if (maxInjuries < 1) maxInjuries = 1;
-		local preferHeaviestFirst = settings.getSetting("PreferHeaviestInjuryFirst").getValue();
+		local preferHeaviestFirst = this.setting("PreferHeaviestInjuryFirst");
 
-		local candidates = [];
+		local treatableInjuries = [];
 		local injuries = _actor.getSkills().query(::Const.SkillType.TemporaryInjury);
 
 		foreach (injury in injuries)
 		{
-			if (injury.isType(::Const.SkillType.PermanentInjury)) continue;
-			if (this.shouldSkipPoVMutationSickness(_actor, injury)) continue;
+			if (!this.isTreatableInjury(_actor, injury)) continue;
 
-			local currentMax = this.getCurrentMaxHealingDays(injury);
-			local targetMax = currentMax <= lightThreshold ? lightMax : heavyMax;
-			if (currentMax <= targetMax) continue;
-
-			candidates.push({
+			treatableInjuries.push({
 				Injury = injury,
-				CurrentMax = currentMax
+				CurrentMax = this.getCurrentMaxHealingDays(injury)
 			});
 		}
 
-		if (preferHeaviestFirst && candidates.len() > 1)
+		if (preferHeaviestFirst && treatableInjuries.len() > 1)
 		{
-			for (local i = 0; i < candidates.len() - 1; i++)
+			for (local i = 0; i < treatableInjuries.len() - 1; i++)
 			{
 				local best = i;
-				for (local j = i + 1; j < candidates.len(); j++)
+				for (local j = i + 1; j < treatableInjuries.len(); j++)
 				{
-					local candidate = candidates[j];
-					local bestCandidate = candidates[best];
+					local candidate = treatableInjuries[j];
+					local bestCandidate = treatableInjuries[best];
 					if (candidate.CurrentMax > bestCandidate.CurrentMax
 						|| (candidate.CurrentMax == bestCandidate.CurrentMax && candidate.Injury.getID() > bestCandidate.Injury.getID()))
 					{
@@ -225,24 +270,23 @@ if (!("BandagesEnhanced" in getroottable()))
 
 				if (best != i)
 				{
-					local tmp = candidates[i];
-					candidates[i] = candidates[best];
-					candidates[best] = tmp;
+					local tmp = treatableInjuries[i];
+					treatableInjuries[i] = treatableInjuries[best];
+					treatableInjuries[best] = tmp;
 				}
 			}
 		}
 
 		local treatedIds = [];
-		foreach (candidate in candidates)
+		foreach (treatableInjury in treatableInjuries)
 		{
 			if (changed >= maxInjuries)
 			{
 				break;
 			}
 
-			local injury = candidate.Injury;
-			local currentMax = candidate.CurrentMax;
-			local targetMax = currentMax <= lightThreshold ? lightMax : heavyMax;
+			local injury = treatableInjury.Injury;
+			local targetMax = this.getTargetMaxHealingDays(treatableInjury.CurrentMax);
 
 			injury.m.HealingTimeMin = ::Math.min(injury.m.HealingTimeMin, targetMax);
 			injury.m.HealingTimeMax = ::Math.max(injury.m.HealingTimeMin, targetMax);
@@ -332,6 +376,9 @@ if (!("BandagesEnhanced" in getroottable()))
 			CanUse = true,
 			Reason = "ok",
 			Message = _actor.getName() + " can use Bandages Enhanced on " + treatableCount + label,
+			HasPerk = hasPerk,
+			HasTemporaryInjury = hasTemporaryInjury,
+			HasPermanentInjury = hasPermanentInjury,
 			TreatableInjuries = treatableInjuries,
 			TreatableInjuryCount = treatableCount
 		};
@@ -347,19 +394,10 @@ if (!("BandagesEnhanced" in getroottable()))
 		}
 
 		local allInjuries = _actor.getSkills().query(::Const.SkillType.TemporaryInjury);
-		local settings = ::BandagesEnhanced.Mod.ModSettings;
-		local lightThreshold = settings.getSetting("LightInjuryThresholdDays").getValue();
-		local lightMax = settings.getSetting("LightInjuryMaxDays").getValue();
-		local heavyMax = settings.getSetting("HeavyInjuryMaxDays").getValue();
 
 		foreach (injury in allInjuries)
 		{
-			if (injury.isType(::Const.SkillType.PermanentInjury)) continue;
-			if (this.shouldSkipPoVMutationSickness(_actor, injury)) continue;
-
-			local currentMax = this.getCurrentMaxHealingDays(injury);
-			local targetMax = currentMax <= lightThreshold ? lightMax : heavyMax;
-			if (currentMax <= targetMax) continue;
+			if (!this.isTreatableInjury(_actor, injury)) continue;
 
 			injuries.push({
 				ID = injury.getID(),
@@ -378,7 +416,7 @@ if (!("BandagesEnhanced" in getroottable()))
 			return false;
 		}
 
-		if (::BandagesEnhanced.Mod.ModSettings.getSetting("TreatPoVMutationSickness").getValue())
+		if (this.setting("TreatPoVMutationSickness"))
 		{
 			return false;
 		}
@@ -391,7 +429,7 @@ if (!("BandagesEnhanced" in getroottable()))
 	{
 		local rows = [];
 
-		if (!("World" in getroottable()) || ::World.getPlayerRoster() == null)
+		if (!this.hasPlayerRoster())
 		{
 			this.debugLog("roster treatment query failed: player roster unavailable");
 			return rows;
@@ -413,9 +451,9 @@ if (!("BandagesEnhanced" in getroottable()))
 				Level = actor.getLevel(),
 				Hitpoints = actor.getHitpoints(),
 				HitpointsMax = actor.getHitpointsMax(),
-				HasPerk = this.hasBandagesEnhancedPerk(actor),
-				HasTemporaryInjury = actor.getSkills().hasSkillOfType(::Const.SkillType.TemporaryInjury),
-				HasPermanentInjury = actor.getSkills().hasSkillOfType(::Const.SkillType.PermanentInjury),
+				HasPerk = ("HasPerk" in result) ? result.HasPerk : this.hasBandagesEnhancedPerk(actor),
+				HasTemporaryInjury = ("HasTemporaryInjury" in result) ? result.HasTemporaryInjury : actor.getSkills().hasSkillOfType(::Const.SkillType.TemporaryInjury),
+				HasPermanentInjury = ("HasPermanentInjury" in result) ? result.HasPermanentInjury : actor.getSkills().hasSkillOfType(::Const.SkillType.PermanentInjury),
 				TreatableInjuries = treatableInjuries,
 				CanUse = result.CanUse,
 				Reason = result.Reason,
@@ -429,7 +467,7 @@ if (!("BandagesEnhanced" in getroottable()))
 
 	function countBandagesInStash()
 	{
-		if (!("World" in getroottable()) || ::World.Assets == null)
+		if (!this.hasWorldAssets())
 		{
 			this.debugLog("count bandages failed: world assets unavailable");
 			return 0;
@@ -452,7 +490,7 @@ if (!("BandagesEnhanced" in getroottable()))
 
 	function consumeBandageFromStash()
 	{
-		if (!("World" in getroottable()) || ::World.Assets == null)
+		if (!this.hasWorldAssets())
 		{
 			this.debugLog("consume bandage failed: world assets unavailable");
 			return false;
@@ -483,7 +521,7 @@ if (!("BandagesEnhanced" in getroottable()))
 			Message = "Bandages Enhanced could not apply treatment."
 		};
 
-		if (!("World" in getroottable()) || ::World.getPlayerRoster() == null)
+		if (!this.hasPlayerRoster())
 		{
 			response.Reason = "roster_unavailable";
 			response.Message = "The company roster is unavailable.";
@@ -526,7 +564,7 @@ if (!("BandagesEnhanced" in getroottable()))
 			return response;
 		}
 
-		local applied = this.applyRosterBandage(actor);
+		local applied = this.applyRosterBandage(actor, useResult);
 		if (!applied)
 		{
 			response.Reason = "not_shortened";
@@ -555,10 +593,14 @@ if (!("BandagesEnhanced" in getroottable()))
 		return this.getRosterBandageUseResult(_actor).CanUse;
 	}
 
-	function applyRosterBandage( _actor )
+	function applyRosterBandage( _actor, _useResult = null )
 	{
-		local result = this.getRosterBandageUseResult(_actor);
-		if (!result.CanUse)
+		if (_useResult == null)
+		{
+			_useResult = this.getRosterBandageUseResult(_actor);
+		}
+
+		if (!_useResult.CanUse)
 		{
 			this.debugLog("roster bandage rejected for " + (_actor == null ? "<null>" : _actor.getName()));
 			return false;

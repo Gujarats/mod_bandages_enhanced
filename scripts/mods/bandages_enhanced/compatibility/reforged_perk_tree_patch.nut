@@ -21,12 +21,6 @@ if (!("Compatibility" in ::BandagesEnhanced))
 			&& ("findById" in ::DynamicPerks.PerkGroups);
 	},
 
-	function getConfiguredRow()
-	{
-		local row = ::BandagesEnhanced.Mod.ModSettings.getSetting("PerkLevel").getValue();
-		return ::Math.max(1, ::Math.min(row, 7));
-	},
-
 	function registerPerkDefinition()
 	{
 		if (::Const.Perks.findById(::BandagesEnhanced.Constants.BandageEnchancePerkID) != null)
@@ -65,7 +59,7 @@ if (!("Compatibility" in ::BandagesEnhanced))
 			}
 		}
 
-		local row = this.getConfiguredRow();
+		local row = ::BandagesEnhanced.Helpers.getConfiguredRow();
 		while (tree.len() < row)
 		{
 			tree.push([]);
@@ -102,9 +96,9 @@ if (!("Compatibility" in ::BandagesEnhanced))
 				continue;
 			}
 
-			perkTree.addPerk(::BandagesEnhanced.Constants.BandageEnchancePerkID, this.getConfiguredRow());
+			perkTree.addPerk(::BandagesEnhanced.Constants.BandageEnchancePerkID, ::BandagesEnhanced.Helpers.getConfiguredRow());
 			added++;
-			::BandagesEnhanced.Helpers.debugLog("[Reforged] Bandages Enhanced added to existing player perk tree for " + actor.getName() + " row=" + this.getConfiguredRow());
+			::BandagesEnhanced.Helpers.debugLog("[Reforged] Bandages Enhanced added to existing player perk tree for " + actor.getName() + " row=" + ::BandagesEnhanced.Helpers.getConfiguredRow());
 		}
 
 		::BandagesEnhanced.Helpers.debugLog("[Reforged] existing-player Bandages Enhanced migration complete added=" + added + " already_present=" + alreadyPresent + " unavailable=" + unavailable);

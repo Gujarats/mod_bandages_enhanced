@@ -43,14 +43,6 @@ if (!("BandagesEnhanced" in getroottable()))
 			}
 		});
 
-		_mod.hook("scripts/ui/global/data_helper", function(q)
-		{
-			q.convertEntityToUIData = @(__original) function( _entity, _activeEntity )
-			{
-				return __original(_entity, _activeEntity);
-			}
-		});
-
 		_mod.hook("scripts/skills/actives/bandage_ally_skill", function(q)
 		{
 			q.create = @(__original) function()
@@ -142,7 +134,7 @@ if (!("BandagesEnhanced" in getroottable()))
 			q.create = @(__original) function()
 			{
 				__original();
-				this.m.Value = ::BandagesEnhanced.Mod.ModSettings.getSetting("BandageValue").getValue();
+				this.m.Value = ::BandagesEnhanced.Helpers.setting("BandageValue");
 				this.m.IsUsable = true;
 				this.m.ItemType = this.Const.Items.ItemType.Usable;
 				this.m.Description = "Clean bandages that can be used in combat to stop bleeding and restore hitpoints. With Bandages Enhanced, they can also speed up temporary injury recovery outside combat.";

@@ -17,7 +17,6 @@ In vanilla Battle Brothers, bandages are mostly a narrow emergency tool: stop bl
 - Outside combat, press `Shift+C` on the world map to open the Bandages Enhanced treatment screen.
 - The treatment screen shows all roster members, their eligibility, the reason treatment is unavailable, and the current stash bandage count.
 - Treatable temporary injuries are shown as hoverable injury icons in the treatment screen.
-- Right-clicking bandages outside combat applies recovery to the selected character when that character has Bandages Enhanced and an eligible temporary injury.
 
 ## Why This Mod Exists
 
@@ -86,6 +85,7 @@ These are default settings, you can change it on mod options menu
 
 ### Vanilla
  - yes compatible
+ - The perk is added to the character screen's shared vanilla perk tree and to any mod-provided per-brother `*_perkTree`. The default `Perk Row` setting of `2` means the second displayed perk row, unlocks after one prior perk point has been spent, and requires a game restart after changing it.
 
 ### Legends
  - yes compatible
