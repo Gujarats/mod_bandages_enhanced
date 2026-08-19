@@ -21,6 +21,8 @@ if (!("BandagesEnhanced" in getroottable()))
 		Tooltip = "Improves bandages so they restore more hitpoints and speed up temporary injury recovery.",
 		Icon = "ui/perks/bandages_enhanced.png",
 		IconDisabled = "ui/perks/bandages_enhanced_sw.png",
+		Row = 1,
+		Unlocks = 1
 	};
 }
 

@@ -81,10 +81,17 @@ if (!("BandagesEnhanced" in getroottable()))
 		{
 			if (this.hasPerkInTree(perks, perk.ID)) continue;
 
+			// tooltip
+			perk.Row <- _row;
+			perk.Unlocks <- _row;
+
 			local p = clone perk;
 			if ("verifyPrerequisites" in p) delete p.verifyPrerequisites;
+
+			//unlocked level
 			p.Row <- _row;
 			p.Unlocks <- _row;
+
 			perks[_row].push(p);
 		}
 		this.debugLog("Appending perk success")
